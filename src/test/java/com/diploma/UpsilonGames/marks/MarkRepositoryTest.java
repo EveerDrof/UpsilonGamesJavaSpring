@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -53,5 +54,13 @@ public class MarkRepositoryTest {
         List<Mark> foundMarks = markRepository.findAllByGameId(savedMark.getGameId());
         Assertions.assertTrue(foundMarks.get(0).equals(savedMark));
         Assertions.assertTrue(!foundMarks.contains(markWithAnotherGameid));
+    }
+    @Test
+    public void saveTwoEquals(){
+        Assertions.assertThrows(DataIntegrityViolationException.class,()-> {
+            markRepository.save(savedMark);
+            markRepository.save(new Mark((byte) 100, savedMark.getGameId(), savedMark.getUserId()));
+            Mark found = markRepository.getByUserIdAndGameId(savedMark.getUserId(), savedMark.getGameId());
+        });
     }
 }
