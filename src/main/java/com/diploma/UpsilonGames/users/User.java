@@ -1,7 +1,7 @@
 package com.diploma.UpsilonGames.users;
 
 import com.diploma.UpsilonGames.marks.Mark;
-import com.diploma.UpsilonGames.marks.MarkId;
+//import com.diploma.UpsilonGames.marks.MarkId;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class User {
     @Column(unique=true,nullable = false)
     private String name;
 
-    @OneToMany(targetEntity= Mark.class,mappedBy = "userId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity= Mark.class,mappedBy = "userId",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Mark> marks = new ArrayList<>();
 
     public User() {
