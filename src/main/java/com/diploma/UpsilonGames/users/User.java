@@ -1,6 +1,11 @@
 package com.diploma.UpsilonGames.users;
 
+import com.diploma.UpsilonGames.marks.Mark;
+import com.diploma.UpsilonGames.marks.MarkId;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -10,6 +15,9 @@ public class User {
     private long id;
     @Column(unique=true,nullable = false)
     private String name;
+
+    @OneToMany(targetEntity= Mark.class,mappedBy = "userId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Mark> marks = new ArrayList<>();
 
     public User() {
     }

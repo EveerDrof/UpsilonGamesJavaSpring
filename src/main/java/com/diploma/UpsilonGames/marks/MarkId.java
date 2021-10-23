@@ -3,19 +3,17 @@ package com.diploma.UpsilonGames.marks;
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.users.User;
 
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class MarkId implements Serializable {
-    @OneToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id",table = "user")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "userId", referencedColumnName = "id",table = "user", updatable = false)
     private User userId;
-    @OneToOne
-    @JoinColumn(name = "gameId", referencedColumnName = "id",table = "game")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "gameId", referencedColumnName = "id",table = "game", updatable = false)
     private Game gameId;
     @Override
 

@@ -1,6 +1,11 @@
 package com.diploma.UpsilonGames.games;
 
+import com.diploma.UpsilonGames.marks.Mark;
+import com.diploma.UpsilonGames.marks.MarkId;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -15,6 +20,9 @@ public class Game {
     public Game(String name, double price) {
         this(name,price,"");
     }
+
+    @OneToMany(targetEntity= Mark.class,mappedBy = "gameId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Mark> marks = new ArrayList<>();
 
     public Game() {
     }
