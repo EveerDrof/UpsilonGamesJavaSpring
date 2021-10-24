@@ -1,6 +1,5 @@
 package com.diploma.UpsilonGames.users;
 
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,7 @@ public class UserRepositoryTest {
     @BeforeEach
     public void setUp(){
         user = new User("Michael");
-        result = testEntityManager.persistFlushFind(user);
+        result = userRepository.save(user);
     }
     @Test
     public void addAndGetUserById(){
@@ -34,7 +33,22 @@ public class UserRepositoryTest {
     }
     @Test
     public void getByUserName(){
-        User foundByRepo = userRepository.getByName(user.getName());
+        User foundByRepo = userRepository.findByName(user.getName());
         Assertions.assertEquals(result,foundByRepo);
+    }
+    @Test
+    public void updateUser(){
+        User oldUser = userRepository.findByName(user.getName());
+        oldUser.setName("Aaaaaaa");
+        userRepository.save(oldUser);
+        User newUser = userRepository.findByName(oldUser.getName());
+        Assertions.assertEquals(oldUser.getName(),newUser.getName());
+        Assertions.assertEquals(oldUser.getId(),newUser.getId());
+    }
+    @Test
+    public void updateUserWithConstructorWithId() {
+        User newUser = new User(user.getId(),"Nameasdfafd");
+        userRepository.save(newUser);
+        Assertions.assertEquals(newUser.getName(),userRepository.getById(newUser.getId()).getName());
     }
 }

@@ -12,7 +12,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class GameServiceUnitTest {
+public class GameServiceTest {
 
     private GameService gameService;
 
