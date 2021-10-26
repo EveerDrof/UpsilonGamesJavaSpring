@@ -2,9 +2,10 @@ package com.diploma.UpsilonGames.marks;
 
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.users.User;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class MarkService {
     private MarkRepository markRepository;
     public MarkService(MarkRepository markRepository){

@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GameAPITest {
     @Autowired

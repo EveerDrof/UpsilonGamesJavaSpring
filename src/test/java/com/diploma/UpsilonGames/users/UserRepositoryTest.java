@@ -21,8 +21,8 @@ public class UserRepositoryTest {
     private User user;
     private User result;
     @BeforeEach
-    public void setUp(){
-        user = new User("Michael");
+    public void setUp()throws Exception{
+        user = new User("Michael","2!Aaasdfafdaasdadssd");
         result = userRepository.save(user);
     }
     @Test
@@ -46,8 +46,8 @@ public class UserRepositoryTest {
         Assertions.assertEquals(oldUser.getId(),newUser.getId());
     }
     @Test
-    public void updateUserWithConstructorWithId() {
-        User newUser = new User(user.getId(),"Nameasdfafd");
+    public void updateUserWithConstructorWithId() throws Exception{
+        User newUser = new User(user.getId(),"aa","Nameasdfafd1_");
         userRepository.save(newUser);
         Assertions.assertEquals(newUser.getName(),userRepository.getById(newUser.getId()).getName());
     }

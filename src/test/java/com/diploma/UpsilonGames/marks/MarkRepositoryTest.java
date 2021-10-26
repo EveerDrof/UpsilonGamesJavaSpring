@@ -29,11 +29,11 @@ public class MarkRepositoryTest {
     private User firstUser;
     private User secondUser;
     @BeforeEach
-    public void setUp(){
+    public void setUp()throws Exception{
         firstGame = testEntityManager.persistFlushFind(new Game("Crysis",2000));
         secondGame =  testEntityManager.persistFlushFind(new Game("Far cry",1000));
-        firstUser =  testEntityManager.persistFlushFind(new User("Ivan"));
-        secondUser = testEntityManager.persistFlushFind( new User("Peter"));
+        firstUser =  testEntityManager.persistFlushFind(new User("Ivan","2!Aaasdfafdaasdadssd"));
+        secondUser = testEntityManager.persistFlushFind( new User("Peter","2!Aaasdfafdaasdadssd"));
         savedMark = testEntityManager.persistFlushFind(new Mark((byte)100,firstGame,firstUser));
         markWithAnotherGameid = testEntityManager.persistFlushFind(new Mark((byte)100,secondGame,firstUser));
         markWithAnotherUserId = testEntityManager.persistFlushFind(new Mark((byte) 100,firstGame,secondUser));

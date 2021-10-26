@@ -32,9 +32,9 @@ public class MarkServiceTest {
     @BeforeEach
     public void setUp() throws Exception {
         gameFirst = new Game("game name", 2000, "descr");
-        userFirst = new User("user name");
+        userFirst = new User("user name","2!Aaasdfafdaasdadssd");
         gameSecond = new Game("game name second", 2000, "descr 2");
-        userSecond = new User("user name 2");
+        userSecond = new User("user name 2","2!Aaasdfafdaasdadssd");
         markService = new MarkService(markRepository);
         marks = List.of(
                 new Mark(markFirst, gameFirst, userFirst),
