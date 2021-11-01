@@ -76,4 +76,11 @@ public class MarkServiceTest {
         byte result = markService.findMarkByUserIdAndGameId(userFirst,gameFirst);
         Assertions.assertEquals(result,marks.get(0).getMark());
     }
+    @Test
+    public void getAverageMarkByGameId(){
+        byte expected = 22;
+        given(markRepository.getAverageMarkByGameId(gameFirst)).willReturn(expected);
+        byte result = markService.getAverageMarkByGameId(gameFirst);
+        Assertions.assertEquals(expected,result);
+    }
 }

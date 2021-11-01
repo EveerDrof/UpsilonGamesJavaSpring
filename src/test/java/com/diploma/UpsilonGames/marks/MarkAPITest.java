@@ -19,8 +19,8 @@ public class MarkAPITest {
     @Autowired
     private TestRestTemplate testRestTemplate;
     private static boolean initialized = false;
-    Game game;
-    User user;
+    private Game game;
+    private User user;
     HashMap<String, String> userData;
     @BeforeEach
     public void setUp() throws Exception{

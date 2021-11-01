@@ -16,18 +16,21 @@ public class GameController {
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
-
+    private HashMap<String,Object> gameToSmallHashMap(Game game){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("name", game.getName());
+        map.put("price", game.getPrice());
+        map.put("id", game.getId());
+        map.put("averageMark",gameService.getAvgMarkByGameId(game));
+        return  map;
+    }
     @GetMapping("/{gameName}/short")
     public ResponseEntity getGameShort(@PathVariable String gameName) {
         Game game = gameService.findByName(gameName);
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        HashMap<String, String> map = new HashMap<>();
-        map.put("name", game.getName());
-        map.put("price", Double.toString(game.getPrice()));
-        map.put("averageMark", Double.toString(9.5));
-        map.put("id", Long.toString(game.getId()));
+        HashMap map = gameToSmallHashMap(game);
         return new ResponseEntity(map, HttpStatus.OK);
     }
 
@@ -37,7 +40,9 @@ public class GameController {
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity(game, HttpStatus.OK);
+        HashMap map = gameToSmallHashMap(game);
+        map.put("description",game.getDescription());
+        return new ResponseEntity(map, HttpStatus.OK);
     }
 
     @PostMapping

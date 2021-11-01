@@ -1,5 +1,7 @@
 package com.diploma.UpsilonGames.games;
 
+import com.diploma.UpsilonGames.marks.MarkRepository;
+import com.diploma.UpsilonGames.marks.MarkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,12 +18,13 @@ import static org.mockito.Mockito.verify;
 public class GameServiceTest {
 
     private GameService gameService;
-
     @Mock
     private GameRepository gameRepository;
+    @Mock
+    private MarkRepository markRepository;
     @BeforeEach
     public void setUp() throws Exception{
-        gameService = new GameService(gameRepository);
+        gameService = new GameService(gameRepository,markRepository);
     }
     @Test
     public void getGameLong_shouldReturnGame()throws Exception{

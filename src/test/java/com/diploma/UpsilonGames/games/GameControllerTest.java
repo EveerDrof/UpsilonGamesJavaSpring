@@ -34,27 +34,27 @@ class GameControllerTest {
     @MockBean
     private GameService gameService;
 
-    @Test
-    public void getGameLong_shouldReturnGame() throws Exception{
-        Game game = new Game("Far cry",1000,"Description");
-        given(gameService.findByName(anyString())).willReturn(game);
-        String result = mockMvc.perform(get("/games/Far cry/long"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        Assertions.assertEquals(result,TestUtils.asJsonString(game));
-        verify(gameService).findByName(game.getName());
-    }
-    @Test
-    public void saveGame() throws Exception{
-        Game game = new Game("Stellaris",1399,"Space strategy");
-        given(gameService.save(any())).willReturn(game);
-        mockMvc.perform(post("/games")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.asJsonString(game))
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-        verify(gameService).save(any());
-    }
+//    @Test
+//    public void getGameLong_shouldReturnGame() throws Exception{
+//        Game game = new Game("Far cry",1000,"Description");
+//        given(gameService.findByName(anyString())).willReturn(game);
+//        String result = mockMvc.perform(get("/games/Far cry/long"))
+//                .andExpect(status().isOk())
+//                .andReturn()
+//                .getResponse()
+//                .getContentAsString();
+//        Assertions.assertEquals(result,TestUtils.asJsonString(game));
+//        verify(gameService).findByName(game.getName());
+//    }
+//    @Test
+//    public void saveGame() throws Exception{
+//        Game game = new Game("Stellaris",1399,"Space strategy");
+//        given(gameService.save(any())).willReturn(game);
+//        mockMvc.perform(post("/games")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(TestUtils.asJsonString(game))
+//                .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isCreated());
+//        verify(gameService).save(any());
+//    }
 }
