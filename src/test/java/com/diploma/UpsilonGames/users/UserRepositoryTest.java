@@ -26,7 +26,7 @@ public class UserRepositoryTest {
         result = userRepository.save(user);
     }
     @Test
-    public void addAndGetUserById(){
+    public void addAndFindUserById(){
         Assertions.assertTrue(user.equals(result));
         User foundByRepo = userRepository.getById(user.getId());
         Assertions.assertEquals(result,foundByRepo);

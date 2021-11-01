@@ -40,7 +40,7 @@ public class MarkRepositoryTest {
     }
     @Test
     public void saveAndGetByUserIdAndGameIdTest(){
-        Mark found = markRepository.getByUserIdAndGameId(savedMark.getUserId(),savedMark.getGameId());
+        Mark found = markRepository.findByUserIdAndGameId(savedMark.getUserId(),savedMark.getGameId());
         Assertions.assertTrue(found.equals(savedMark));
     }
     @Test
@@ -60,7 +60,7 @@ public class MarkRepositoryTest {
         Assertions.assertThrows(DataIntegrityViolationException.class,()-> {
             markRepository.save(savedMark);
             markRepository.save(new Mark((byte) 100, savedMark.getGameId(), savedMark.getUserId()));
-            Mark found = markRepository.getByUserIdAndGameId(savedMark.getUserId(), savedMark.getGameId());
+            Mark found = markRepository.findByUserIdAndGameId(savedMark.getUserId(), savedMark.getGameId());
         });
     }
 }

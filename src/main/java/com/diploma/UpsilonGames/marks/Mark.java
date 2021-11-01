@@ -2,6 +2,7 @@ package com.diploma.UpsilonGames.marks;
 
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.users.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -13,11 +14,13 @@ public class Mark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.MERGE)
     @JoinColumn(name = "userId", referencedColumnName = "id", updatable = false,nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User userId;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.MERGE)
     @JoinColumn(name = "gameId", referencedColumnName = "id", updatable = false,nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Game gameId;
 
     public Mark() {
@@ -40,7 +43,7 @@ public class Mark {
             return false;
         return Objects.equals(gameId, mark.gameId);
     }
-    public short getMark() {
+    public byte getMark() {
         return mark;
     }
 
@@ -54,5 +57,17 @@ public class Mark {
 
     public User getUserId() {
         return userId;
+    }
+
+    public void setMark(byte mark) {
+        this.mark = mark;
+    }
+
+    public void setUserId(User userId) {
+        this.userId = userId;
+    }
+
+    public void setGameId(Game gameId) {
+        this.gameId = gameId;
     }
 }

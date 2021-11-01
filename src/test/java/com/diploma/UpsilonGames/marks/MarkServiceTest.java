@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Objects;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,5 +62,18 @@ public class MarkServiceTest {
         Assertions.assertEquals(2, foundMarks.size());
         Assertions.assertTrue(Objects.equals(marks.get(0),foundMarks.get(0)));
         Assertions.assertTrue(Objects.equals(marks.get(2), foundMarks.get(1)));
+    }
+    @Test
+    public void addCorrectMark_shouldReturnMark(){
+        Mark mark = marks.get(0);
+        given(markRepository.save(mark)).willReturn(mark);
+        Mark result = markService.save(mark);
+        Assertions.assertTrue(mark.equals(result));
+    }
+    @Test
+    public void getMarkByUserIdAndGameId_shouldReturnMark(){
+        given(markRepository.findByUserIdAndGameId(userFirst,gameFirst)).willReturn(marks.get(0));
+        byte result = markService.findMarkByUserIdAndGameId(userFirst,gameFirst);
+        Assertions.assertEquals(result,marks.get(0).getMark());
     }
 }

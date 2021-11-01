@@ -66,6 +66,9 @@ public class User {
 
     @Override
     public boolean equals(Object o){
+        if(o == null){
+            return  false;
+        }
         if(this == o) {
             return true;
         }
@@ -80,6 +83,10 @@ public class User {
         return id;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -92,4 +99,7 @@ public class User {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

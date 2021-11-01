@@ -19,7 +19,7 @@ public class GameController {
 
     @GetMapping("/{gameName}/short")
     public ResponseEntity getGameShort(@PathVariable String gameName) {
-        Game game = gameService.findGameByName(gameName);
+        Game game = gameService.findByName(gameName);
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
@@ -33,7 +33,7 @@ public class GameController {
 
     @GetMapping("/{gameName}/long")
     public ResponseEntity getGameLong(@PathVariable String gameName) {
-        Game game = gameService.findGameByName(gameName);
+        Game game = gameService.findByName(gameName);
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }

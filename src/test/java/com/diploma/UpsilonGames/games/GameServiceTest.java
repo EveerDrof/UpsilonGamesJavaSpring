@@ -1,5 +1,6 @@
 package com.diploma.UpsilonGames.games;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,7 @@ public class GameServiceTest {
     public void getGameLong_shouldReturnGame()throws Exception{
         String gameName = "Far cry";
         given(gameRepository.findByName(anyString())).willReturn(new Game(gameName,2000));
-        Game game = gameService.findGameByName(gameName);
+        Game game = gameService.findByName(gameName);
         assertEquals(game.getName(),gameName);
         verify(gameRepository).findByName(anyString());
     }
@@ -38,5 +39,22 @@ public class GameServiceTest {
         assertEquals(returnedGame.getName(),game.getName());
         assertEquals(returnedGame.getId(),game.getId());
         verify(gameRepository).save(game);
+    }
+    @Test
+    void existsByIdOnNonExisting_shouldReturnFalse(){
+        given(gameRepository.existsById(9999L)).willReturn(false);
+        Assertions.assertFalse(gameService.existsById(9999L));
+    }
+    @Test
+    void existsByIdOnExisting_shouldReturnTrue(){
+        given(gameRepository.existsById(9999L)).willReturn(true);
+        Assertions.assertTrue(gameService.existsById(9999L));
+    }
+    @Test
+    void findById(){
+        Game game = new Game(100,"aaa",2000,"adasda");
+        given(gameRepository.getById(game.getId())).willReturn(game);
+        Game result = gameService.findById(game.getId());
+        Assertions.assertTrue(game.equals(result));
     }
 }

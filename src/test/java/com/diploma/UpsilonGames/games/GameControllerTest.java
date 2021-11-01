@@ -4,11 +4,9 @@ import com.diploma.UpsilonGames.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,14 +37,14 @@ class GameControllerTest {
     @Test
     public void getGameLong_shouldReturnGame() throws Exception{
         Game game = new Game("Far cry",1000,"Description");
-        given(gameService.findGameByName(anyString())).willReturn(game);
+        given(gameService.findByName(anyString())).willReturn(game);
         String result = mockMvc.perform(get("/games/Far cry/long"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
         Assertions.assertEquals(result,TestUtils.asJsonString(game));
-        verify(gameService).findGameByName(game.getName());
+        verify(gameService).findByName(game.getName());
     }
     @Test
     public void saveGame() throws Exception{
