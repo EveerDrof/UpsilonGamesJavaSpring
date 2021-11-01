@@ -30,6 +30,12 @@ public class GameService implements IMarkAcceptableService {
     }
 
     public long getAvgMarkByGameId(Game gameId) {
-        return markRepository.getAverageMarkByGameId(gameId);
+        byte mark;
+        try {
+            mark = markRepository.getAverageMarkByGameId(gameId);
+        } catch (Exception ex){
+            mark = -1;
+        }
+        return mark;
     }
 }
