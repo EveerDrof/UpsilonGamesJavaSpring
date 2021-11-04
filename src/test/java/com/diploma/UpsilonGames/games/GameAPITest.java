@@ -20,6 +20,8 @@ public class GameAPITest {
     @BeforeEach
     public void setUp()throws Exception{
         if(!isInitialized){
+            String a ="aaa;";
+            a.substring(1);
             HashMap<String, String> userData = new HashMap<>();
             String userName = "michaelgafadaf";
             String userPassword = "aaaBBB123_asdf_!!asdf";
