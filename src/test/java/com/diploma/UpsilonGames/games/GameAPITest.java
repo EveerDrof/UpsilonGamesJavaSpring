@@ -9,12 +9,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GameAPITest {
     @Autowired
-    TestRestTemplate testRestTemplate;
+    private TestRestTemplate testRestTemplate;
     private static boolean isInitialized = false;
     private static long userId1,userId2;
     @BeforeEach
@@ -23,7 +24,7 @@ public class GameAPITest {
             String a ="aaa;";
             a.substring(1);
             HashMap<String, String> userData = new HashMap<>();
-            String userName = "michaelgafadaf";
+            String userName = "GameAPITest";
             String userPassword = "aaaBBB123_asdf_!!asdf";
             userData.put("name", userName);
             userData.put("password", userPassword);
@@ -80,5 +81,13 @@ public class GameAPITest {
         Assertions.assertThat(body.get("name")).isEqualTo(game.getName());
         Assertions.assertThat(body.get("price")).isEqualTo(game.getPrice());
         Assertions.assertThat(body.get("averageMark")).isEqualTo(25);
+    }
+    @Test
+    public void getAll(){
+        Game game = new Game("getAlltestGame",1654566,"getAlltestGame");
+        testRestTemplate.postForEntity("/games",game,null);
+        ResponseEntity<String> response = testRestTemplate.getForEntity("/games/allshort", String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody().indexOf(game.getName())).isNotEqualTo(-1);
     }
 }

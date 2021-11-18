@@ -1,6 +1,7 @@
 package com.diploma.UpsilonGames.games;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,7 @@ public class GameController {
     private GameService gameService;
 
     @Autowired
-    public GameController(GameService gameService) {
+    public GameController(@Lazy GameService gameService) {
         this.gameService = gameService;
     }
     private HashMap<String,Object> gameToSmallHashMap(Game game){
@@ -54,5 +55,9 @@ public class GameController {
         } else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+    }
+    @GetMapping("/allshort")
+    public ResponseEntity findAll(){
+        return new ResponseEntity(gameService.findAll(),HttpStatus.OK);
     }
 }

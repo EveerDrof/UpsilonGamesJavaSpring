@@ -6,6 +6,7 @@ import com.diploma.UpsilonGames.games.GameService;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class MarkController {
     private IMarkAcceptableService<Game> gameService;
 
     @Autowired
-    public MarkController(MarkService markService, UserService userService, GameService gameService) {
+    public MarkController(@Lazy MarkService markService,@Lazy UserService userService,@Lazy GameService gameService) {
         this.markService = markService;
         this.userService = userService;
         this.gameService = gameService;

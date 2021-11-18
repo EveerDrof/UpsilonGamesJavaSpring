@@ -1,14 +1,18 @@
 package com.diploma.UpsilonGames.users;
 
 import com.diploma.UpsilonGames.IMarkAcceptableService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Access;
 import java.util.HashMap;
 
 @Service
 public class UserService implements IMarkAcceptableService {
     private UserRepository userRepository;
-    public UserService(UserRepository userRepository){
+    @Autowired
+    public UserService(@Lazy UserRepository userRepository){
         this.userRepository = userRepository;
     }
     public User save(User user){
