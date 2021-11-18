@@ -1,6 +1,7 @@
 package com.diploma.UpsilonGames.games;
 
 import com.diploma.UpsilonGames.marks.Mark;
+import com.diploma.UpsilonGames.pictures.Picture;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,6 +24,10 @@ public class Game {
     @OneToMany(targetEntity= Mark.class,mappedBy = "gameId",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Mark> marks = new ArrayList<>();
 
+    @OneToMany(targetEntity= Picture.class, mappedBy="gameId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Picture> picturess = new ArrayList<>();
+    @OneToOne
+    private Picture shortcut;
     public Game() {
     }
 
@@ -32,8 +37,24 @@ public class Game {
         this.description = description;
     }
 
+    public Game(long id, String name, double price, String description) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+    }
+    public Game(String name, double price, String description,Picture shortcut) {
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.shortcut = shortcut;
+    }
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -45,5 +66,16 @@ public class Game {
     }
     public String getDescription() {
         return description;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setShortcut(Picture shortcut){
+        this.shortcut = shortcut;
+    }
+
+    public Picture getShortcut() {
+        return shortcut;
     }
 }

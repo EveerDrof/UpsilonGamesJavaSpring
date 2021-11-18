@@ -1,6 +1,7 @@
 package com.diploma.UpsilonGames.games;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,31 +14,36 @@ public class GameController {
     private GameService gameService;
 
     @Autowired
-    public GameController(GameService gameService) {
+    public GameController(@Lazy GameService gameService) {
         this.gameService = gameService;
     }
-
+    private HashMap<String,Object> gameToSmallHashMap(Game game){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("name", game.getName());
+        map.put("price", game.getPrice());
+        map.put("id", game.getId());
+        map.put("averageMark",gameService.getAvgMarkByGameId(game));
+        return  map;
+    }
     @GetMapping("/{gameName}/short")
     public ResponseEntity getGameShort(@PathVariable String gameName) {
-        Game game = gameService.findGameByName(gameName);
+        Game game = gameService.findByName(gameName);
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        HashMap<String, String> map = new HashMap<>();
-        map.put("name", game.getName());
-        map.put("price", Double.toString(game.getPrice()));
-        map.put("averageMark", Double.toString(9.5));
-        map.put("id", Long.toString(game.getId()));
+        HashMap map = gameToSmallHashMap(game);
         return new ResponseEntity(map, HttpStatus.OK);
     }
 
     @GetMapping("/{gameName}/long")
     public ResponseEntity getGameLong(@PathVariable String gameName) {
-        Game game = gameService.findGameByName(gameName);
+        Game game = gameService.findByName(gameName);
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity(game, HttpStatus.OK);
+        HashMap map = gameToSmallHashMap(game);
+        map.put("description",game.getDescription());
+        return new ResponseEntity(map, HttpStatus.OK);
     }
 
     @PostMapping
@@ -49,5 +55,9 @@ public class GameController {
         } else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+    }
+    @GetMapping("/allshort")
+    public ResponseEntity findAll(){
+        return new ResponseEntity(gameService.findAll(),HttpStatus.OK);
     }
 }
