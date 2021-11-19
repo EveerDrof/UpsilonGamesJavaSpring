@@ -61,7 +61,11 @@ public class PictureController {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        IOUtils.copy(picture.getData().getBinaryStream(),response.getOutputStream());
+        try {
+            IOUtils.copy(picture.getData().getBinaryStream(), response.getOutputStream());
+        }catch (Exception ex){
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
     }
     @RequestMapping(value = "/{gameName}/shortcut",method = RequestMethod.POST,consumes = MediaType.ALL_VALUE)
     public ResponseEntity postScreenshot(@PathVariable String gameName, HttpServletRequest httpServletRequest) {

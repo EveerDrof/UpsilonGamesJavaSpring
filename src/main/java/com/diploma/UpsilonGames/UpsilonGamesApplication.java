@@ -10,23 +10,27 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableJpaRepositories
 @SpringBootApplication
-@EnableTransactionManagement
 public class UpsilonGamesApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(UpsilonGamesApplication.class, args);
 	}
-//	@Bean(name="entityManagerFactory")// Need to expose SessionFactory to be able to work with BLOBs
-//	public SessionFactory entityManagerFactory(HibernateEntityManagerFactory hemf) {
-//		return hemf.getSessionFactory();
-//	}
-
 	public LocalSessionFactoryBean entityManagerFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		return sessionFactory;
 	}
-
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**").allowedOrigins("*");
+			}
+		};
+	}
 }

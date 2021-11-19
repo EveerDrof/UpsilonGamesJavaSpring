@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @RestController
@@ -58,6 +59,11 @@ public class GameController {
     }
     @GetMapping("/allshort")
     public ResponseEntity findAll(){
-        return new ResponseEntity(gameService.findAll(),HttpStatus.OK);
+        ArrayList<HashMap<String,Object>> records = new ArrayList<>();
+        gameService.findAll().stream().forEach((game)->{
+            HashMap<String,Object> record = gameToSmallHashMap(game);
+            records.add(record);
+        });
+        return new ResponseEntity(records,HttpStatus.OK);
     }
 }
