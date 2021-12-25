@@ -38,8 +38,8 @@ public class DataLoader implements ApplicationRunner {
         gameRepository.saveAll(games);
         ArrayList<User> users = new ArrayList<>(Arrays.asList(
                 new User( "admin","Univac00Eniac_1",UserRole.ADMIN),
-                new User("qkql","12_Passwsdfgdord"),
-                new User("bob","Passwdsdfgsdfg_00")
+                new User("qkql","12_Passwsdfgdord",UserRole.USER),
+                new User("bob","Passwdsdfgsdfg_00",UserRole.USER)
         ));
         userRepository.saveAll(users);
         ArrayList<Mark> marks = new ArrayList<>(Arrays.asList(

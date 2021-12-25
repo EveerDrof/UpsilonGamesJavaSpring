@@ -5,11 +5,11 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 
 public enum UserRole {
-    USER(Sets.newHashSet(UserPermission.USER)),
-    ADMIN(Sets.newHashSet(UserPermission.ADMIN));
-    private final Set<UserPermission> permissions;
+    USER("USER"),
+    ADMIN("ADMIN");
+    private final String role;
 
-    UserRole(Set<UserPermission> permissions) {
-        this.permissions = permissions;
+    UserRole(String role) {
+        this.role = role;
     }
 }

@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,7 +54,11 @@ public class MarkController {
         return Arrays.asList(user,game);
     }
     @PostMapping
-    public ResponseEntity addMark(@RequestParam String userId, @RequestParam String gameId, @RequestParam String mark) {
+    public ResponseEntity addMark(@RequestParam String userId, @RequestParam String gameId,
+                                  @RequestParam String mark, Principal principal) {
+        if(((UserService)userService).findByName(principal.getName()).getId() != Long.parseLong(userId)){
+            return new ResponseEntity("It is not your id",HttpStatus.UNAUTHORIZED);
+        }
         byte byteMark = -1;
         try {
             byteMark = Byte.parseByte(mark);
@@ -73,6 +79,8 @@ public class MarkController {
             return new ResponseEntity("Successfully added new mark", HttpStatus.CREATED);
         } catch (MarkException markException) {
             return new ResponseEntity(markException.getMessage(), markException.getStatus());
+        }catch (Exception exception) {
+            return new ResponseEntity("Duplicate entry", HttpStatus.BAD_REQUEST);
         }
     }
 

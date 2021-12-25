@@ -22,80 +22,84 @@ public class User implements UserDetails {
     @Transient
     private static BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
     private static int passwordMinLength = 10;
-    public static int getPasswordMinLength(){
+
+    public static int getPasswordMinLength() {
         return passwordMinLength;
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(unique=true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String name;
     @JsonIgnore
-    @Column(unique=true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String password;
-    @Column(name = "role",nullable = false,columnDefinition = "ENUM('USER','ADMIN')")
+    @Column(name = "role", nullable = false, columnDefinition = "ENUM('USER','ADMIN')")
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    @OneToMany(targetEntity= Mark.class,mappedBy = "userId",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Mark.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Mark> marks = new ArrayList<>();
 
     public User() {
     }
-
-    public User(String name,String password) throws IncorrectPasswordException {
-        if(password.length()<passwordMinLength){
-            throw new IncorrectPasswordException("Password is too short.It must have at least 10 symbols",new Exception());
+    public String checkAndEncodePassword(String password) throws IncorrectPasswordException{
+        if (password.length() < passwordMinLength) {
+            throw new IncorrectPasswordException("Password is too short.It must have at least 10 symbols", new Exception());
         }
-        if(!password.matches(".*\\d.*")){
-            throw new IncorrectPasswordException("Password has no digits.It must have at least 1 digit",new Exception());
+        if (!password.matches(".*\\d.*")) {
+            throw new IncorrectPasswordException("Password has no digits.It must have at least 1 digit", new Exception());
         }
-        Pattern pattern = Pattern.compile("[^a-z0-9 ]",Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(password);
-        if(!matcher.find()){
+        if (!matcher.find()) {
             throw new IncorrectPasswordException("Password has no special symbols." +
-                "It must contain at least one of the following: !_-'\"+=()%$#@~` ",new Exception());
+                    "It must contain at least one of the following: !_-'\"+=()%$#@~` ", new Exception());
         }
         pattern = Pattern.compile("[A-Z]");
         matcher = pattern.matcher(password);
-        if(!matcher.find()){
+        if (!matcher.find()) {
             throw new IncorrectPasswordException("Password has no capital letters." +
-                "It must contain at least one capital letter",new Exception());
+                    "It must contain at least one capital letter", new Exception());
         }
         pattern = Pattern.compile("[a-z]");
         matcher = pattern.matcher(password);
-        if(!matcher.find()){
+        if (!matcher.find()) {
             throw new IncorrectPasswordException("Password has no small letters." +
-                "It must contain at least one small letter",new Exception());
+                    "It must contain at least one small letter", new Exception());
         }
+        return encoder.encode(password);
+    }
+    public User(String name, String password) throws IncorrectPasswordException {
+
         this.name = name;
-        this.password = encoder.encode(password);
+        this.password = checkAndEncodePassword(password);
         role = UserRole.USER;
     }
 
-    public User(long id, String name,String password) throws IncorrectPasswordException {
-        this(name,password);
+    public User(long id, String name, String password) throws IncorrectPasswordException {
+        this(name, password);
         this.id = id;
     }
 
-    public User(String name, String password, UserRole role) {
-        this.name = name;
-        this.password = password;
+    public User(String name, String password, UserRole role) throws IncorrectPasswordException {
+        this(name,password);
         this.role = role;
     }
 
     @Override
-    public boolean equals(Object o){
-        if(o == null){
-            return  false;
-        }
-        if(this == o) {
-            return true;
-        }
-        if(this.getClass() != o.getClass()){
+    public boolean equals(Object o) {
+        if (o == null) {
             return false;
         }
-        User user = (User)o;
-        return Objects.equals(this.name,user.name);
+        if (this == o) {
+            return true;
+        }
+        if (this.getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals(this.name, user.name);
     }
 
     public long getId() {
@@ -114,13 +118,9 @@ public class User implements UserDetails {
         this.name = name;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Arrays.asList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
