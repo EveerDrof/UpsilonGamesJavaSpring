@@ -15,7 +15,7 @@ public class GameController {
     private GameService gameService;
 
     @Autowired
-    public GameController(@Lazy GameService gameService) {
+    public GameController(GameService gameService) {
         this.gameService = gameService;
     }
     private HashMap<String,Object> gameToSmallHashMap(Game game){

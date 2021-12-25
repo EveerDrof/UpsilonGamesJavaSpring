@@ -33,13 +33,12 @@ public class UserController {
     }
     @GetMapping("/{userName}")
     public  ResponseEntity getUser(@PathVariable String userName){
-        HashMap userData = new HashMap();
+        User user;
         try{
-            userData = userService.findByName(userName);
+            user = userService.findByName(userName);
         } catch (Exception ex){
-            userData.put("errorMessage",ex.getMessage());
-            return new ResponseEntity(userData,HttpStatus.NOT_FOUND);
+            return new ResponseEntity("errorMessage",HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity(userData,HttpStatus.OK);
+        return new ResponseEntity(user,HttpStatus.OK);
     }
 }

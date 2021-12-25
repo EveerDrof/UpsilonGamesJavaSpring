@@ -22,7 +22,7 @@ public class MarkController {
     private IMarkAcceptableService<Game> gameService;
 
     @Autowired
-    public MarkController(@Lazy MarkService markService,@Lazy UserService userService,@Lazy GameService gameService) {
+    public MarkController(MarkService markService,UserService userService,GameService gameService) {
         this.markService = markService;
         this.userService = userService;
         this.gameService = gameService;

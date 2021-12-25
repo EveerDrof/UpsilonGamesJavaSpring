@@ -2,16 +2,25 @@ package com.diploma.UpsilonGames.users;
 
 import com.diploma.UpsilonGames.PasswordUtils;
 import com.diploma.UpsilonGames.marks.Mark;
+import com.diploma.UpsilonGames.security.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Entity
-public class User {
+public class User implements UserDetails {
+    @Autowired
+    @Transient
+    private static BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
     private static int passwordMinLength = 10;
     public static int getPasswordMinLength(){
         return passwordMinLength;
@@ -21,9 +30,12 @@ public class User {
     private long id;
     @Column(unique=true,nullable = false)
     private String name;
+    @JsonIgnore
     @Column(unique=true,nullable = false)
     private String password;
-
+    @Column(name = "role",nullable = false,columnDefinition = "ENUM('USER','ADMIN')")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     @OneToMany(targetEntity= Mark.class,mappedBy = "userId",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Mark> marks = new ArrayList<>();
 
@@ -56,12 +68,19 @@ public class User {
                 "It must contain at least one small letter",new Exception());
         }
         this.name = name;
-        this.password = PasswordUtils.hash(password.toCharArray());
+        this.password = encoder.encode(password);
+        role = UserRole.USER;
     }
 
     public User(long id, String name,String password) throws IncorrectPasswordException {
         this(name,password);
         this.id = id;
+    }
+
+    public User(String name, String password, UserRole role) {
+        this.name = name;
+        this.password = password;
+        this.role = role;
     }
 
     @Override
@@ -95,11 +114,50 @@ public class User {
         this.name = name;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }
