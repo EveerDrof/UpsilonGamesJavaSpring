@@ -4,6 +4,8 @@ import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.games.GameRepository;
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.marks.MarkRepository;
+import com.diploma.UpsilonGames.pictures.Picture;
+import com.diploma.UpsilonGames.pictures.PictureRepository;
 import com.diploma.UpsilonGames.security.UserRole;
 import com.diploma.UpsilonGames.users.IncorrectPasswordException;
 import com.diploma.UpsilonGames.users.User;
@@ -13,6 +15,9 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -22,15 +27,21 @@ public class DataLoader implements ApplicationRunner {
     private UserRepository userRepository;
     private GameRepository gameRepository;
     private MarkRepository markRepository;
+    private PictureRepository pictureRepository;
+    private BlobHelper blobHelper;
+
 
     @Autowired
-    public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository) {
+    public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
+                      BlobHelper blobHelper, PictureRepository pictureRepository) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
+        this.blobHelper = blobHelper;
+        this.pictureRepository = pictureRepository;
     }
 
-    public void run(ApplicationArguments args) throws IncorrectPasswordException {
+    public void run(ApplicationArguments args) throws Exception {
         ArrayList<Game> games = new ArrayList<>(Arrays.asList(
                 new Game("Stalker",500,"Game about Chernobyl"),
                 new Game("Devil May Cry",500,"Game about demons"))
@@ -49,5 +60,26 @@ public class DataLoader implements ApplicationRunner {
                 new Mark((byte) 100,games.get(1),users.get(2))
         ));
         markRepository.saveAll(marks);
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        ArrayList<Picture> shortcuts = new ArrayList<>(Arrays.asList(
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/S.T.A.L.K.E.R-logo.png").readAllBytes()),
+                        games.get(0)),
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/DMC.webp").readAllBytes()),
+                        games.get(1)),
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/STAKLERSCREENSHOT.jpg").readAllBytes()),
+                        games.get(0)),
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/STAKLERSCREENSHOT2.jpg").readAllBytes()),
+                        games.get(0))
+        ));
+        pictureRepository.saveAll(shortcuts);
+        for(int i=0;i<2;i++) {
+            games.get(i).setShortcut(shortcuts.get(i));
+            gameRepository.save(games.get(i));
+        }
+
     }
 }

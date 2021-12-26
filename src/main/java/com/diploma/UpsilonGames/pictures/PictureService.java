@@ -1,5 +1,6 @@
 package com.diploma.UpsilonGames.pictures;
 
+import com.diploma.UpsilonGames.games.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class PictureService {
     public Picture findById(long id){
         return pictureRepository.findById(id).get();
     }
-
+    public ArrayList<Picture> findByGameId(Game game){return  pictureRepository.findByGameId(game);}
     public ArrayList<Picture> findAll() {
         return pictureRepository.findAll();
     }

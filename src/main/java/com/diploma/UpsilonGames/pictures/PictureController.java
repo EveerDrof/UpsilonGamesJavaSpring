@@ -47,7 +47,7 @@ public class PictureController {
     }
     @GetMapping("/{gameName}/screenshotIDs")
     public ResponseEntity getScreenshotIDs(@PathVariable String gameName) {
-        return new ResponseEntity(pictureService.findAll(),HttpStatus.OK);
+        return new ResponseEntity(pictureService.findByGameId(gameService.findByName(gameName)),HttpStatus.OK);
     }
     @GetMapping("/{pictureId}")
     public void findById(@PathVariable long pictureId, HttpServletResponse response) throws Exception{
