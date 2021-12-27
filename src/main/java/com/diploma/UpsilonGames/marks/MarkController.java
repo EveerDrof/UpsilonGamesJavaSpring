@@ -49,8 +49,18 @@ public class MarkController {
     private List getUserAndGame(String userId,String gameId)throws MarkException{
         long longUserId = parseId(userId, "User id is incorrect");
         long longGameId = parseId(gameId, "Game id is incorrect");
-        User user = checkAndFind(longUserId, userService, "User not found");
-        Game game = checkAndFind(longGameId, gameService, "Game not found");
+        User user;
+        if(longUserId == -1){
+            user = null;
+        } else {
+            user = checkAndFind(longUserId, userService, "User not found");
+        }
+        Game game;
+        if(longGameId == -1){
+            game = null;
+        } else {
+            game = checkAndFind(longGameId, gameService, "Game not found");
+        }
         return Arrays.asList(user,game);
     }
     @PostMapping

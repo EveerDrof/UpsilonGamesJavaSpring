@@ -26,6 +26,9 @@ public class MarkService {
     }
 
     public byte findMarkByUserIdAndGameId(User user, Game game) {
+        if(user == null){
+            return markRepository.getAverageMarkByGameId(game);
+        }
         Mark mark = markRepository.findByUserIdAndGameId(user,game);
         return mark.getMark();
     }
