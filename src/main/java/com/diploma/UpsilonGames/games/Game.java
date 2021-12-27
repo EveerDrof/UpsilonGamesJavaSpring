@@ -2,6 +2,7 @@ package com.diploma.UpsilonGames.games;
 
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.pictures.Picture;
+import com.diploma.UpsilonGames.reviews.Review;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -26,6 +27,10 @@ public class Game {
 
     @OneToMany(targetEntity= Picture.class, mappedBy="gameId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Picture> picturess = new ArrayList<>();
+
+    @OneToMany(targetEntity= Review.class, mappedBy="gameId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews = new ArrayList<>();
+
     @OneToOne
     private Picture shortcut;
     public Game() {

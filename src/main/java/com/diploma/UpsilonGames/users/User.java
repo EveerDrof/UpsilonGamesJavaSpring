@@ -2,6 +2,7 @@ package com.diploma.UpsilonGames.users;
 
 import com.diploma.UpsilonGames.PasswordUtils;
 import com.diploma.UpsilonGames.marks.Mark;
+import com.diploma.UpsilonGames.reviews.Review;
 import com.diploma.UpsilonGames.security.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ public class User implements UserDetails {
     private UserRole role;
     @OneToMany(targetEntity = Mark.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Mark> marks = new ArrayList<>();
-
+    @OneToMany(targetEntity = Review.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews = new ArrayList<>();
     public User() {
     }
     public String checkAndEncodePassword(String password) throws IncorrectPasswordException{

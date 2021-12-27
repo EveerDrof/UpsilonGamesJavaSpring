@@ -2,6 +2,7 @@ package com.diploma.UpsilonGames.pictures;
 
 
 import com.diploma.UpsilonGames.games.Game;
+import com.diploma.UpsilonGames.users.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import javax.persistence.*;

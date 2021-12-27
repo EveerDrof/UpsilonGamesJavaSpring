@@ -6,6 +6,9 @@ import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.marks.MarkRepository;
 import com.diploma.UpsilonGames.pictures.Picture;
 import com.diploma.UpsilonGames.pictures.PictureRepository;
+import com.diploma.UpsilonGames.reviews.Review;
+import com.diploma.UpsilonGames.reviews.ReviewRepository;
+import com.diploma.UpsilonGames.reviews.ReviewService;
 import com.diploma.UpsilonGames.security.UserRole;
 import com.diploma.UpsilonGames.users.IncorrectPasswordException;
 import com.diploma.UpsilonGames.users.User;
@@ -28,17 +31,19 @@ public class DataLoader implements ApplicationRunner {
     private GameRepository gameRepository;
     private MarkRepository markRepository;
     private PictureRepository pictureRepository;
+    private ReviewRepository reviewRepository;
     private BlobHelper blobHelper;
 
 
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
-                      BlobHelper blobHelper, PictureRepository pictureRepository) {
+                      BlobHelper blobHelper, PictureRepository pictureRepository, ReviewRepository reviewRepository) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
         this.blobHelper = blobHelper;
         this.pictureRepository = pictureRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     public void run(ApplicationArguments args) throws Exception {
@@ -80,6 +85,12 @@ public class DataLoader implements ApplicationRunner {
             games.get(i).setShortcut(shortcuts.get(i));
             gameRepository.save(games.get(i));
         }
-
+        ArrayList<Review> reviews = new ArrayList<>(Arrays.asList(
+                new Review("This is a review for STALKER by USER 1",games.get(0),users.get(0)),
+                new Review("This is a review for DMC by USER 1",games.get(1),users.get(0)),
+                new Review("This is a review for STALKER by USER 2",games.get(0),users.get(1)),
+                new Review("This is a review for DMC by USER 2",games.get(1),users.get(1))
+        ));
+        reviewRepository.saveAll(reviews);
     }
 }

@@ -104,6 +104,8 @@ public class MarkController {
             return new ResponseEntity(mark, HttpStatus.OK);
         } catch (MarkException markException) {
             return new ResponseEntity(markException.getMessage(), markException.getStatus());
+        }catch (Exception markException) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
 }
