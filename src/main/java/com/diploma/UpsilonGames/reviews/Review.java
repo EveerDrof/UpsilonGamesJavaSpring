@@ -2,8 +2,11 @@ package com.diploma.UpsilonGames.reviews;
 
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.users.User;
+import com.diploma.UpsilonGames.votes.Vote;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint( columnNames = { "userId", "gameId" } ) } )
@@ -11,6 +14,7 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(length = 9999)
     private String reviewText;
     @ManyToOne()
     @JoinColumn(name = "gameId",referencedColumnName = "id", updatable = false,nullable = false)
@@ -18,6 +22,8 @@ public class Review {
     @ManyToOne()
     @JoinColumn(name = "userId",referencedColumnName = "id", updatable = false,nullable = false)
     private User userId;
+    @OneToMany(targetEntity = Vote.class, mappedBy = "reviewId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Vote> votes = new ArrayList<>();
     public Review(){
 
     }

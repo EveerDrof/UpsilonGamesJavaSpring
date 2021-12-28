@@ -4,6 +4,7 @@ import com.diploma.UpsilonGames.PasswordUtils;
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.reviews.Review;
 import com.diploma.UpsilonGames.security.UserRole;
+import com.diploma.UpsilonGames.votes.Vote;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +44,8 @@ public class User implements UserDetails {
     private List<Mark> marks = new ArrayList<>();
     @OneToMany(targetEntity = Review.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews = new ArrayList<>();
+    @OneToMany(targetEntity = Vote.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Vote> votes = new ArrayList<>();
     public User() {
     }
     public String checkAndEncodePassword(String password) throws IncorrectPasswordException{

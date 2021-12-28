@@ -13,6 +13,8 @@ import com.diploma.UpsilonGames.security.UserRole;
 import com.diploma.UpsilonGames.users.IncorrectPasswordException;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserRepository;
+import com.diploma.UpsilonGames.votes.Vote;
+import com.diploma.UpsilonGames.votes.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -32,18 +34,21 @@ public class DataLoader implements ApplicationRunner {
     private MarkRepository markRepository;
     private PictureRepository pictureRepository;
     private ReviewRepository reviewRepository;
+    private VoteRepository voteRepository;
     private BlobHelper blobHelper;
 
 
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
-                      BlobHelper blobHelper, PictureRepository pictureRepository, ReviewRepository reviewRepository) {
+                      BlobHelper blobHelper, PictureRepository pictureRepository, ReviewRepository reviewRepository,
+                      VoteRepository voteRepository) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
         this.blobHelper = blobHelper;
         this.pictureRepository = pictureRepository;
         this.reviewRepository = reviewRepository;
+        this.voteRepository = voteRepository;
     }
 
     public void run(ApplicationArguments args) throws Exception {
@@ -92,5 +97,10 @@ public class DataLoader implements ApplicationRunner {
                 new Review("This is a review for DMC by USER 2",games.get(1),users.get(1))
         ));
         reviewRepository.saveAll(reviews);
+        ArrayList<Vote> votes = new ArrayList<>(Arrays.asList(
+                new Vote(true,users.get(0),reviews.get(0)),
+                new Vote(false,users.get(0),reviews.get(1))
+        ));
+        voteRepository.saveAll(votes);
     }
 }

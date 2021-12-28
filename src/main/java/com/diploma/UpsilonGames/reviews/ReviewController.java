@@ -4,6 +4,8 @@ import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.games.GameService;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserService;
+import com.diploma.UpsilonGames.votes.VoteService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -12,8 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping(value = "reviews")
@@ -21,31 +24,55 @@ public class ReviewController {
     private ReviewService reviewService;
     private UserService userService;
     private GameService gameService;
+    private VoteService voteService;
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public ReviewController(ReviewService reviewService, UserService userService, GameService gameService){
+    public ReviewController(ReviewService reviewService, UserService userService,
+                            GameService gameService, VoteService voteService){
 
         this.reviewService = reviewService;
         this.userService = userService;
         this.gameService = gameService;
+        this.voteService = voteService;
+        objectMapper = new ObjectMapper();
+    }
+    private HashMap<String,Object> reviewToHashMapWithAdditionalData(Review review){
+        HashMap<String,Object> hashMap = objectMapper.convertValue(review, HashMap.class);
+        hashMap.put("likesNumber",voteService.getReviewLikesNumber(review));
+        hashMap.put("dislikesNumber",voteService.getReviewDislikesNumber(review));
+        return hashMap;
+    }
+    private ArrayList<HashMap<String,Object>> convertReviewsAndLoadAdditionalData(
+            ArrayList<Review> reviews){
+        return new ArrayList(reviews.stream()
+                .map(review -> reviewToHashMapWithAdditionalData(review))
+                .collect(Collectors.toList()));
     }
     @GetMapping
-    public ArrayList<Review> getReviews(@RequestParam long userId, @RequestParam String gameName,
-                                        @RequestParam String sort,@RequestParam long reviewsNumber){
+    public Object getReviews(@RequestParam long userId, @RequestParam String gameName,
+                                   @RequestParam String sort, @RequestParam long reviewsNumber){
         if(gameName == ""){
             if(userId == -1){
-              return  reviewService.findAll(sort,reviewsNumber);
+              return  convertReviewsAndLoadAdditionalData(
+                      reviewService.findAll(sort,reviewsNumber)
+              );
             }
             User user = userService.findById(userId);
-            return reviewService.findByUserId(sort,reviewsNumber,user);
+            return convertReviewsAndLoadAdditionalData(
+                    reviewService.findByUserId(sort,reviewsNumber,user)
+            );
         }
         if(userId == -1){
             Game game = gameService.findByName(gameName);
-            return  reviewService.findByGameId(sort,reviewsNumber,game);
+            return  convertReviewsAndLoadAdditionalData(
+                    reviewService.findByGameId(sort,reviewsNumber,game)
+            );
         }
         Game game = gameService.findByName(gameName);
         User user = userService.findById(userId);
-        return new ArrayList<Review>(Arrays.asList(reviewService.findByGameIdByUserId(game,user)));
+        return convertReviewsAndLoadAdditionalData(new ArrayList(List.of(
+                reviewService.findByGameIdByUserId(game,user))));
     }
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity postReview(Principal principal, @RequestParam String gameName,

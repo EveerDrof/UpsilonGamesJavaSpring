@@ -53,4 +53,11 @@ public class ReviewService {
     public void save(Review review) {
         reviewRepository.save(review);
     }
+    public  Review findById(long reviewId){
+        return reviewRepository.getById(reviewId);
+    }
+
+    public boolean existsById(long reviewId) {
+        return reviewRepository.existsById(reviewId);
+    }
 }
