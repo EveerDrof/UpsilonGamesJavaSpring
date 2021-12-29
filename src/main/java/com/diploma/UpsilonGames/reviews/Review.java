@@ -22,7 +22,7 @@ public class Review {
     @ManyToOne()
     @JoinColumn(name = "userId",referencedColumnName = "id", updatable = false,nullable = false)
     private User userId;
-    @OneToMany(targetEntity = Vote.class, mappedBy = "reviewId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Vote.class, mappedBy = "reviewId", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
     public Review(){
 

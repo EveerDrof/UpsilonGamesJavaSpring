@@ -1,5 +1,7 @@
 package com.diploma.UpsilonGames.users;
 
+import com.diploma.UpsilonGames.games.Game;
+import com.diploma.UpsilonGames.games.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -13,10 +15,12 @@ import java.util.HashMap;
 @RequestMapping(value = "users")
 public class UserController {
     private UserService userService;
+    private GameService gameService;
 
     @Autowired
-    public UserController(@Lazy UserService userService){
+    public UserController(UserService userService, GameService gameService){
         this.userService = userService;
+        this.gameService = gameService;
     }
     @PostMapping(value = "/register")
     public ResponseEntity register(@RequestBody HashMap<String,String> hashMap){

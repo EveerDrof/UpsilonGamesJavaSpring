@@ -44,5 +44,8 @@ public class UserService implements IMarkAcceptableService, UserDetailsService {
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         return findByName(s);
     }
+    public boolean existsByName(String name){
+        return userRepository.existsByName(name);
+    }
 
 }

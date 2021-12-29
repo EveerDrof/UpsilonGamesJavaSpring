@@ -51,4 +51,8 @@ public class GameService implements IMarkAcceptableService {
     public ArrayList<Game> findAll() {
         return gameRepository.findAll();
     }
+
+    public boolean existsByName(String name){
+        return gameRepository.existsByName(name);
+    }
 }

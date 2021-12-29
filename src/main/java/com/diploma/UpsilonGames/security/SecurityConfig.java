@@ -29,6 +29,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET,"/reviews/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/votes/**").permitAll()
                 .antMatchers(HttpMethod.POST,"/users/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/store/**").hasRole(UserRole.USER.name())
+                .antMatchers(HttpMethod.POST,"/store/**").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.GET,"/users/*").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.POST,"/marks").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.POST,"/games").hasRole(UserRole.ADMIN.name())

@@ -3,6 +3,7 @@ package com.diploma.UpsilonGames.games;
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.pictures.Picture;
 import com.diploma.UpsilonGames.reviews.Review;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +24,13 @@ public class Game {
         this(name,price,"");
     }
 
-    @OneToMany(targetEntity= Mark.class,mappedBy = "gameId",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(targetEntity= Mark.class,mappedBy = "gameId",cascade = CascadeType.ALL)
     private List<Mark> marks = new ArrayList<>();
 
-    @OneToMany(targetEntity= Picture.class, mappedBy="gameId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity= Picture.class, mappedBy="gameId",cascade=CascadeType.ALL)
     private List<Picture> picturess = new ArrayList<>();
 
-    @OneToMany(targetEntity= Review.class, mappedBy="gameId",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity= Review.class, mappedBy="gameId",cascade=CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
 
     @OneToOne

@@ -40,11 +40,11 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false, columnDefinition = "ENUM('USER','ADMIN')")
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    @OneToMany(targetEntity = Mark.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Mark.class, mappedBy = "userId", cascade = CascadeType.ALL)
     private List<Mark> marks = new ArrayList<>();
-    @OneToMany(targetEntity = Review.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Review.class, mappedBy = "userId", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
-    @OneToMany(targetEntity = Vote.class, mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Vote.class, mappedBy = "userId", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
     public User() {
     }

@@ -10,4 +10,5 @@ import java.util.ArrayList;
 public interface GameRepository extends JpaRepository<Game, Long> {
     Game findByName(String name);
     ArrayList<Game> findAll();
+    boolean existsByName(String name);
 }
