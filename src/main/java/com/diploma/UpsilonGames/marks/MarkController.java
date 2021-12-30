@@ -3,6 +3,8 @@ package com.diploma.UpsilonGames.marks;
 import com.diploma.UpsilonGames.IMarkAcceptableService;
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.games.GameService;
+import com.diploma.UpsilonGames.storeRecords.StoreRecordService;
+import com.diploma.UpsilonGames.storeRecords.StoreRecordType;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +24,15 @@ public class MarkController {
     private MarkService markService;
     private IMarkAcceptableService<User> userService;
     private IMarkAcceptableService<Game> gameService;
+    private StoreRecordService storeRecordService;
 
     @Autowired
-    public MarkController(MarkService markService,UserService userService,GameService gameService) {
+    public MarkController(MarkService markService, UserService userService, GameService gameService,
+                          StoreRecordService storeRecordService) {
         this.markService = markService;
         this.userService = userService;
         this.gameService = gameService;
+        this.storeRecordService = storeRecordService;
     }
 
     private long parseId(String id, String errorMessage) throws MarkException {
@@ -85,8 +90,13 @@ public class MarkController {
             List result = getUserAndGame(userId,gameId);
             User user = (User)result.get(0);
             Game game = (Game)result.get(1);
-            markService.save(new  Mark(byteMark,game,user));
-            return new ResponseEntity("Successfully added new mark", HttpStatus.CREATED);
+            if(storeRecordService.existsByGameIdAndUserIdAndType(game,user, StoreRecordType.IN_LIBRARY)){
+                markService.save(new  Mark(byteMark,game,user));
+                return new ResponseEntity("Successfully added new mark", HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity("This game is not in your library",
+                        HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+            }
         } catch (MarkException markException) {
             return new ResponseEntity(markException.getMessage(), markException.getStatus());
         }catch (Exception exception) {

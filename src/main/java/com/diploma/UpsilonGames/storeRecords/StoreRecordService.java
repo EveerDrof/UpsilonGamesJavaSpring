@@ -36,4 +36,16 @@ public class StoreRecordService {
         storeRecordRepository.switchUserGamesType(user,StoreRecordType.IN_CART.name(),
                 StoreRecordType.IN_LIBRARY.name());
     }
+    public Game findByGameNameAndUser(Game game,User user){
+        return storeRecordRepository.findByGameIdAndUserId(game,user);
+    }
+    public  boolean existsByGameIdAndUserIdAndType(Game game,User user,
+                                                   StoreRecordType storeRecordType){
+        if(storeRecordRepository.existsByGameIdAndUserIdAndType(
+                game,user,storeRecordType.name()) == 1){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

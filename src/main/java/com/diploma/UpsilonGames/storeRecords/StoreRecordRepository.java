@@ -1,5 +1,6 @@
 package com.diploma.UpsilonGames.storeRecords;
 
+import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.users.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,4 +22,11 @@ public interface StoreRecordRepository extends JpaRepository<StoreRecord,Long> {
     @Modifying
     @Transactional
     void switchUserGamesType(User user, String oldRecordType, String newRecordType);
+    @Query(value = "SELECT * FROM store_record sr WHERE sr.game_id = ?1 AND sr.user_id = ?2 "
+            ,nativeQuery = true)
+    Game findByGameIdAndUserId(Game game, User user);
+    @Query(value = "SELECT EXISTS (SELECT * FROM store_record sr WHERE sr.game_id = ?1  AND" +
+            " sr.user_id = ?2 AND sr.store_record_type = ?3)"
+            ,nativeQuery = true)
+    long existsByGameIdAndUserIdAndType(Game game, User user,String storeRecordType);
 }

@@ -2,6 +2,8 @@ package com.diploma.UpsilonGames.reviews;
 
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.games.GameService;
+import com.diploma.UpsilonGames.storeRecords.StoreRecordService;
+import com.diploma.UpsilonGames.storeRecords.StoreRecordType;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserService;
 import com.diploma.UpsilonGames.votes.VoteService;
@@ -25,16 +27,19 @@ public class ReviewController {
     private UserService userService;
     private GameService gameService;
     private VoteService voteService;
+    private StoreRecordService storeRecordService;
     private ObjectMapper objectMapper;
 
     @Autowired
     public ReviewController(ReviewService reviewService, UserService userService,
-                            GameService gameService, VoteService voteService){
+                            GameService gameService, VoteService voteService,
+                            StoreRecordService storeRecordService){
 
         this.reviewService = reviewService;
         this.userService = userService;
         this.gameService = gameService;
         this.voteService = voteService;
+        this.storeRecordService = storeRecordService;
         objectMapper = new ObjectMapper();
     }
     private HashMap<String,Object> reviewToHashMapWithAdditionalData(Review review){
@@ -81,6 +86,11 @@ public class ReviewController {
         try {
             User user = userService.findByName(principal.getName());
             Game game = gameService.findByName(gameName);
+            if(!storeRecordService.existsByGameIdAndUserIdAndType(game,user,
+                    StoreRecordType.IN_LIBRARY)){
+                return new ResponseEntity("Game is not in your library",
+                        HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+            }
             Review createdReview = reviewService.findByGameIdByUserId(game,user);
             if(createdReview != null){
                 createdReview.setReviewText(httpEntity.getBody());
