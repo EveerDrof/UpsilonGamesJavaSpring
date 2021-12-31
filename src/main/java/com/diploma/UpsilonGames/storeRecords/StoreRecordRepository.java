@@ -29,4 +29,9 @@ public interface StoreRecordRepository extends JpaRepository<StoreRecord,Long> {
             " sr.user_id = ?2 AND sr.store_record_type = ?3)"
             ,nativeQuery = true)
     long existsByGameIdAndUserIdAndType(Game game, User user,String storeRecordType);
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM store_record sr WHERE sr.game_id = ?1 AND sr.user_id = ?2",
+            nativeQuery = true)
+    void deleteByGameIdAndUserId(Game gameId, User userId);
 }

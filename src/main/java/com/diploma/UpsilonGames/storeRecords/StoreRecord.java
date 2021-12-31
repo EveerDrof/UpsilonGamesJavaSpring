@@ -6,7 +6,11 @@ import com.diploma.UpsilonGames.users.User;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "store_record")
+@Table(
+        name = "store_record",
+        uniqueConstraints = { @UniqueConstraint( columnNames = { "userId", "gameId" } ) }
+)
+
 public class StoreRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

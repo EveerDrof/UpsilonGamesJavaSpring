@@ -12,48 +12,62 @@ public class ReviewService {
     private ReviewRepository reviewRepository;
 
     @Autowired
-    public ReviewService(ReviewRepository reviewRepository){
+    public ReviewService(ReviewRepository reviewRepository) {
 
         this.reviewRepository = reviewRepository;
     }
 
     public ArrayList<Review> findAll(String sort, long reviewsNumber) {
         ArrayList<Review> reviews = null;
-        switch (sort){
+        switch (sort) {
             case "newest":
-                reviews = reviewRepository.findAll(reviewsNumber);
+                reviews = reviewRepository.findAllNewest(reviewsNumber);
+                break;
+            case "oldest":
+                reviews = reviewRepository.findAllOldest(reviewsNumber);
                 break;
         }
-        return  reviews;
+        return reviews;
     }
 
     public ArrayList<Review> findByUserId(String sort, long reviewsNumber, User userId) {
         ArrayList<Review> reviews = null;
-        switch (sort){
+        switch (sort) {
             case "newest":
-                reviews = reviewRepository.findByUserId(reviewsNumber,userId);
+                reviews = reviewRepository.findByUserId(reviewsNumber, userId);
                 break;
         }
-        return  reviews;
-    }
-    public ArrayList<Review> findByGameId(String sort, long reviewsNumber, Game gameId) {
-        ArrayList<Review> reviews = null;
-        switch (sort){
-            case "newest":
-                reviews = reviewRepository.findByGameId(reviewsNumber,gameId);
-                break;
-        }
-        return  reviews;
+        return reviews;
     }
 
-    public Review findByGameIdByUserId( Game game, User user) {
-        return reviewRepository.findByGameIdByUserId(game,user);
+    public ArrayList<Review> findByGameId(String sort, long reviewsNumber, Game gameId) {
+        ArrayList<Review> reviews = null;
+        switch (sort) {
+            case "newest":
+                reviews = reviewRepository.findByGameIdNewest(reviewsNumber, gameId);
+                break;
+            case "oldest":
+                reviews = reviewRepository.findByGameIdOldest(reviewsNumber, gameId);
+                break;
+            case "mostLiked":
+                reviews = reviewRepository.findByGameIdMostLiked(reviewsNumber, gameId);
+                break;
+            case "highestDifference":
+                reviews = reviewRepository.findByGameIdWithHighestDifference(reviewsNumber,gameId);
+                break;
+        }
+        return reviews;
+    }
+
+    public Review findByGameIdByUserId(Game game, User user) {
+        return reviewRepository.findByGameIdByUserId(game, user);
     }
 
     public void save(Review review) {
         reviewRepository.save(review);
     }
-    public  Review findById(long reviewId){
+
+    public Review findById(long reviewId) {
         return reviewRepository.getById(reviewId);
     }
 

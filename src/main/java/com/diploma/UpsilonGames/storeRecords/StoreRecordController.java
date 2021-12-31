@@ -9,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -49,8 +47,13 @@ public class StoreRecordController {
             return new ResponseEntity("Game not found", HttpStatus.NOT_FOUND);
         }
         Game game = gameService.findByName(gameName);
-        storeRecordService.save(new StoreRecord(user, game, StoreRecordType.IN_CART));
-        return new ResponseEntity(HttpStatus.OK);
+        try {
+            storeRecordService.save(new StoreRecord(user, game, StoreRecordType.IN_CART));
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        catch (Exception ex) {
+            return new ResponseEntity("Duplicate record", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("cart/")
@@ -83,11 +86,34 @@ public class StoreRecordController {
         }
         Game game = gameService.findByName(gameName);
         User user = userService.findByName(principal.getName());
-        if(storeRecordService.existsByGameIdAndUserIdAndType(game, user, StoreRecordType.IN_LIBRARY)
+        if(storeRecordService
+                .existsByGameIdAndUserIdAndType(game, user, StoreRecordType.IN_CART))
+        {
+            return new ResponseEntity("inCart",HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+        }
+        if(storeRecordService
+                .existsByGameIdAndUserIdAndType(game, user, StoreRecordType.IN_LIBRARY)
         ) {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity("inLibrary",HttpStatus.OK);
         } else {
             return new ResponseEntity(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+        }
+    }
+    @PostMapping("cart/remove")
+    public ResponseEntity deleteFromCart(@RequestParam String gameName,Principal principal){
+        if (!userService.existsByName(principal.getName())) {
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+        if (!gameService.existsByName(gameName)) {
+            return new ResponseEntity("Game not found", HttpStatus.NOT_FOUND);
+        }
+        Game game = gameService.findByName(gameName);
+        User user = userService.findByName(principal.getName());
+        try{
+            storeRecordService.deleteFromCart(game,user);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception ex){
+            return new ResponseEntity("No such record",HttpStatus.BAD_REQUEST);
         }
     }
 }

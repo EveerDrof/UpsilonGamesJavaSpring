@@ -21,6 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {;
         http
                 .csrf().disable()
+                .cors().and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS,"**").permitAll()
                 .antMatchers(HttpMethod.GET,"/games/**").permitAll()
@@ -31,6 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST,"/users/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/store/**").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.POST,"/store/**").hasRole(UserRole.USER.name())
+                .antMatchers(HttpMethod.DELETE,"/store/**").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.GET,"/users/*").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.POST,"/marks").hasRole(UserRole.USER.name())
                 .antMatchers(HttpMethod.POST,"/games").hasRole(UserRole.ADMIN.name())

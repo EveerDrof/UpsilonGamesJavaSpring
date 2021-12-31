@@ -48,4 +48,8 @@ public class StoreRecordService {
             return false;
         }
     }
+
+    public void deleteFromCart(Game gameId, User userId) {
+        storeRecordRepository.deleteByGameIdAndUserId(gameId,userId);
+    }
 }

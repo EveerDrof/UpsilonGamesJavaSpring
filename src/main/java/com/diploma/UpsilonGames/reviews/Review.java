@@ -5,7 +5,9 @@ import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.votes.Vote;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,6 +26,7 @@ public class Review {
     private User userId;
     @OneToMany(targetEntity = Vote.class, mappedBy = "reviewId", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
+    private Timestamp creationDate;
     public Review(){
 
     }
@@ -31,6 +34,7 @@ public class Review {
         this.reviewText = reviewText;
         this.gameId = gameId;
         this.userId = userId;
+        this.creationDate = new Timestamp(new Date().getTime());
     }
 
     public String getReviewText() {
@@ -55,5 +59,13 @@ public class Review {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
     }
 }
