@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "games")
@@ -44,6 +45,7 @@ public class GameController {
         }
         HashMap map = gameToSmallHashMap(game);
         map.put("description",game.getDescription());
+        map.put("tags",game.getTags());
         return new ResponseEntity(map, HttpStatus.OK);
     }
 
@@ -65,5 +67,14 @@ public class GameController {
             records.add(record);
         });
         return new ResponseEntity(records,HttpStatus.OK);
+    }
+    @GetMapping("/selection")
+    public ResponseEntity getSelection(String tags,double maxPrice,double minPrice,byte minMark,
+                                       String namePart) {
+        String[] tagsArr = new String[0];
+        if(!Objects.equals(tags, "")){
+            tagsArr = tags.split(",");
+        }
+        return new ResponseEntity(gameService.select(tagsArr,maxPrice,minPrice,minMark,namePart), HttpStatus.OK);
     }
 }

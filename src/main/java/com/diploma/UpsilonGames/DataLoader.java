@@ -10,6 +10,8 @@ import com.diploma.UpsilonGames.reviews.Review;
 import com.diploma.UpsilonGames.reviews.ReviewRepository;
 import com.diploma.UpsilonGames.reviews.ReviewService;
 import com.diploma.UpsilonGames.security.UserRole;
+import com.diploma.UpsilonGames.tags.Tag;
+import com.diploma.UpsilonGames.tags.TagRepository;
 import com.diploma.UpsilonGames.users.IncorrectPasswordException;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserRepository;
@@ -34,6 +36,7 @@ public class DataLoader implements ApplicationRunner {
     private MarkRepository markRepository;
     private PictureRepository pictureRepository;
     private ReviewRepository reviewRepository;
+    private TagRepository tagRepository;
     private VoteRepository voteRepository;
     private BlobHelper blobHelper;
 
@@ -41,21 +44,39 @@ public class DataLoader implements ApplicationRunner {
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
                       BlobHelper blobHelper, PictureRepository pictureRepository, ReviewRepository reviewRepository,
-                      VoteRepository voteRepository) {
+                      VoteRepository voteRepository, TagRepository tagRepository) {
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
         this.blobHelper = blobHelper;
         this.pictureRepository = pictureRepository;
         this.reviewRepository = reviewRepository;
+        this.tagRepository = tagRepository;
         this.voteRepository = voteRepository;
     }
 
     public void run(ApplicationArguments args) throws Exception {
         ArrayList<Game> games = new ArrayList<>(Arrays.asList(
                 new Game("Stalker",500,"Game about Chernobyl"),
-                new Game("Devil May Cry",500,"Game about demons"))
+                new Game("Devil May Cry",1000,"Game about demons"))
         );
+        ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
+                new Tag("shooter"),
+                new Tag("demons"),
+                new Tag("rpg"),
+                new Tag("chernobyl"),
+                new Tag("inventory management"),
+                new Tag("sci-fi"),
+                new Tag("open world"),
+                new Tag("anomalies")
+        ));
+        for(int i=0;i<2;i++){
+                games.get(i).addTag(tags.get(i));
+        }
+        for(int i=2;i<tags.size();i++){
+                games.get(0).addTag(tags.get(i));
+        }
+        tagRepository.saveAll(tags);
         gameRepository.saveAll(games);
         ArrayList<User> users = new ArrayList<>(Arrays.asList(
                 new User( "admin","Univac00Eniac_1",UserRole.ADMIN),

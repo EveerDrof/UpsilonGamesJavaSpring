@@ -3,6 +3,7 @@ package com.diploma.UpsilonGames.games;
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.pictures.Picture;
 import com.diploma.UpsilonGames.reviews.Review;
+import com.diploma.UpsilonGames.tags.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -37,8 +38,11 @@ public class Game {
     private Picture shortcut;
     public Game() {
     }
-
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable
+    private List<Tag> tags;
     public Game(String name, double price, String description) {
+        this.tags = new ArrayList<>();
         this.name = name;
         this.price = price;
         this.description = description;
@@ -84,5 +88,16 @@ public class Game {
 
     public Picture getShortcut() {
         return shortcut;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+    public void addTag(Tag tag){
+        this.tags.add(tag);
     }
 }

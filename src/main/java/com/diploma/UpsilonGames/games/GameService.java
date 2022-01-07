@@ -5,6 +5,8 @@ import com.diploma.UpsilonGames.marks.MarkRepository;
 import com.diploma.UpsilonGames.pictures.Picture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -54,5 +56,13 @@ public class GameService implements IMarkAcceptableService {
 
     public boolean existsByName(String name){
         return gameRepository.existsByName(name);
+    }
+
+    public ArrayList<Game> select(String[] tagsArr, double maxPrice, double minPrice, byte minMark,
+                                 String namePart) {
+        if(tagsArr.length == 0){
+            return gameRepository.select(maxPrice,minPrice,minMark,namePart);
+        }
+        return gameRepository.select(tagsArr,maxPrice,minPrice,minMark,namePart);
     }
 }
