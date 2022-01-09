@@ -28,8 +28,11 @@ public class UserController {
         String errorMessage = "Created successfully";
         try {
             User user = new User(hashMap.get("name"), hashMap.get("password"));
+            if(userService.existsByName(user.getName())){
+                throw new Exception("This user already exists");
+            }
             userService.save(user);
-        }catch (IncorrectPasswordException exception) {
+        }catch (Exception exception) {
             errorMessage = exception.getMessage();
             status = HttpStatus.BAD_REQUEST;
         }
