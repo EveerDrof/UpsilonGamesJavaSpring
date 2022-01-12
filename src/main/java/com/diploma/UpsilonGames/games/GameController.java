@@ -36,17 +36,19 @@ public class GameController {
         HashMap map = gameToSmallHashMap(game);
         return new ResponseEntity(map, HttpStatus.OK);
     }
-
+    private HashMap getFullGameData(Game game){
+        HashMap map = gameToSmallHashMap(game);
+        map.put("description",game.getDescription());
+        map.put("tags",game.getTags());
+        return map;
+    }
     @GetMapping("/{gameName}/long")
     public ResponseEntity getGameLong(@PathVariable String gameName) {
         Game game = gameService.findByName(gameName);
         if (game == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        HashMap map = gameToSmallHashMap(game);
-        map.put("description",game.getDescription());
-        map.put("tags",game.getTags());
-        return new ResponseEntity(map, HttpStatus.OK);
+        return new ResponseEntity(getFullGameData(game), HttpStatus.OK);
     }
 
     @PostMapping
@@ -75,6 +77,7 @@ public class GameController {
         if(!Objects.equals(tags, "")){
             tagsArr = tags.split(",");
         }
-        return new ResponseEntity(gameService.select(tagsArr,maxPrice,minPrice,minMark,namePart), HttpStatus.OK);
+        return new ResponseEntity(gameService.select(tagsArr,maxPrice,minPrice,minMark,namePart)
+                .stream().map((game)->{return getFullGameData(game);}), HttpStatus.OK);
     }
 }
