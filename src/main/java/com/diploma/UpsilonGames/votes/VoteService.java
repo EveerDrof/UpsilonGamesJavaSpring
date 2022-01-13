@@ -1,5 +1,6 @@
 package com.diploma.UpsilonGames.votes;
 
+import com.diploma.UpsilonGames.comments.Comment;
 import com.diploma.UpsilonGames.reviews.Review;
 import com.diploma.UpsilonGames.users.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,25 +9,38 @@ import org.springframework.stereotype.Service;
 @Service
 public class VoteService {
     private VoteRepository voteRepository;
+
     @Autowired
-    public VoteService(VoteRepository voteRepository){
+    public VoteService(VoteRepository voteRepository) {
 
         this.voteRepository = voteRepository;
     }
-    public long getReviewLikesNumber(Review reviewId){
+
+    public long getReviewLikesNumber(Review reviewId) {
         return voteRepository.getReviewLikesNumber(reviewId);
     }
-    public long getReviewDislikesNumber(Review reviewId){
+
+    public long getReviewDislikesNumber(Review reviewId) {
         return voteRepository.getReviewDislikesNumber(reviewId);
     }
-    public void save(Vote vote){
+
+    public void save(Vote vote) {
         voteRepository.save(vote);
     }
-    public Vote findByReviewAndUser(Review reviewId,User userId){
-        return voteRepository.findByReviewIdAndUserId(reviewId,userId);
+
+    public Vote findByReviewAndUser(Review reviewId, User userId) {
+        return voteRepository.findByReviewIdAndUserId(reviewId, userId);
     }
 
     public long existsByReviewIdAndUserId(Review reviewId, User userId) {
-        return voteRepository.existsByReviewIdByUserId(reviewId,userId);
+        return voteRepository.existsByReviewIdByUserId(reviewId, userId);
+    }
+
+    public long getCommentLikesNumber(Comment c) {
+        return voteRepository.getCommentLikesNumber(c);
+    }
+
+    public long getCommentDislikesNumber(Comment c) {
+        return voteRepository.getCommentDislikesNumber(c);
     }
 }

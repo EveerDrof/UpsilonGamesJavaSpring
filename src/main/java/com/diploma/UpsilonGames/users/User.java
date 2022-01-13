@@ -1,6 +1,6 @@
 package com.diploma.UpsilonGames.users;
 
-import com.diploma.UpsilonGames.PasswordUtils;
+import com.diploma.UpsilonGames.comments.Comment;
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.reviews.Review;
 import com.diploma.UpsilonGames.security.UserRole;
@@ -11,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.*;
@@ -24,11 +23,6 @@ public class User implements UserDetails {
     @Transient
     private static BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
     private static int passwordMinLength = 10;
-
-    public static int getPasswordMinLength() {
-        return passwordMinLength;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -46,9 +40,34 @@ public class User implements UserDetails {
     private List<Review> reviews = new ArrayList<>();
     @OneToMany(targetEntity = Vote.class, mappedBy = "userId", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
+    @OneToMany(targetEntity = Comment.class, mappedBy = "userId", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+
     public User() {
     }
-    public String checkAndEncodePassword(String password) throws IncorrectPasswordException{
+
+    public User(String name, String password) throws IncorrectPasswordException {
+
+        this.name = name;
+        this.password = checkAndEncodePassword(password);
+        role = UserRole.USER;
+    }
+
+    public User(long id, String name, String password) throws IncorrectPasswordException {
+        this(name, password);
+        this.id = id;
+    }
+
+    public User(String name, String password, UserRole role) throws IncorrectPasswordException {
+        this(name, password);
+        this.role = role;
+    }
+
+    public static int getPasswordMinLength() {
+        return passwordMinLength;
+    }
+
+    public String checkAndEncodePassword(String password) throws IncorrectPasswordException {
         if (password.length() < passwordMinLength) {
             throw new IncorrectPasswordException("Password is too short.It must have at least 10 symbols", new Exception());
         }
@@ -74,22 +93,6 @@ public class User implements UserDetails {
                     "It must contain at least one small letter", new Exception());
         }
         return encoder.encode(password);
-    }
-    public User(String name, String password) throws IncorrectPasswordException {
-
-        this.name = name;
-        this.password = checkAndEncodePassword(password);
-        role = UserRole.USER;
-    }
-
-    public User(long id, String name, String password) throws IncorrectPasswordException {
-        this(name, password);
-        this.id = id;
-    }
-
-    public User(String name, String password, UserRole role) throws IncorrectPasswordException {
-        this(name,password);
-        this.role = role;
     }
 
     @Override
