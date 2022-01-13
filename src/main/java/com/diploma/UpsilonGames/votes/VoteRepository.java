@@ -30,4 +30,9 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     @Query(value = "SELECT COUNT(*) FROM vote v WHERE v.comment_id = ?1 AND v.vote = false",
             nativeQuery = true)
     long getCommentDislikesNumber(Comment c);
+
+    @Query(value = "SELECT EXISTS(SELECT * FROM vote v WHERE v.comment_id= ?1 AND v.user_id = ?2 " +
+            " AND v.vote = ?3)",
+            nativeQuery = true)
+    long checkIfUserVoted(Comment comment, User user, Boolean voteType);
 }

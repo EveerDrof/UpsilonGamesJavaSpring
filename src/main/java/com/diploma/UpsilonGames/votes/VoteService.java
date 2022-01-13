@@ -43,4 +43,11 @@ public class VoteService {
     public long getCommentDislikesNumber(Comment c) {
         return voteRepository.getCommentDislikesNumber(c);
     }
+
+    public boolean checkIfUserVoted(Comment comment, User user, boolean voteType) {
+        if (user == null) {
+            return false;
+        }
+        return voteRepository.checkIfUserVoted(comment, user, voteType) == 1;
+    }
 }

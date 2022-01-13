@@ -35,25 +35,29 @@ public class CommentController {
         objectMapper = new ObjectMapper();
     }
 
-    private HashMap<String, Object> commentToMapWithAdditionalData(Comment comment) {
+    private HashMap<String, Object> commentToMapWithAdditionalData(Comment comment, User user) {
         HashMap<String, Object> result = new HashMap<>();
         result.put("id", comment.getId());
         result.put("likesNumber", voteService.getCommentLikesNumber(comment));
         result.put("dislikesNumber", voteService.getCommentDislikesNumber(comment));
         result.put("text", comment.getText());
         result.put("creationDate", comment.getCreationDate());
+        result.put("liked", voteService.checkIfUserVoted(comment, user, true));
+        result.put("disliked", voteService.checkIfUserVoted(comment, user, false));
         ArrayList<Object> children = new ArrayList<>();
         for (Comment child : comment.getChildren()) {
-            children.add(commentToMapWithAdditionalData(child));
+            children.add(commentToMapWithAdditionalData(child, user));
         }
         result.put("children", children);
         return result;
     }
 
-    private ArrayList<HashMap<String, Object>> commentsArrToHashMapWithAdditionalData(ArrayList<Comment> comments) {
+    private ArrayList<HashMap<String, Object>> commentsArrToHashMapWithAdditionalData(
+            ArrayList<Comment> comments, User user
+    ) {
         ArrayList<HashMap<String, Object>> result = new ArrayList<>();
         for (Comment c : comments) {
-            result.add(commentToMapWithAdditionalData(c));
+            result.add(commentToMapWithAdditionalData(c, user));
         }
         return result;
     }
@@ -61,13 +65,19 @@ public class CommentController {
     @GetMapping("/review/{reviewId}")
     public ResponseEntity getReviewComments(@PathVariable long reviewId,
                                             @RequestParam long commentsNumber,
-                                            @RequestParam String sort) {
+                                            @RequestParam String sort,
+                                            Principal principal) {
         if (!reviewService.existsById(reviewId)) {
             return new ResponseEntity("No such review", HttpStatus.BAD_REQUEST);
         }
         Review review = reviewService.findById(reviewId);
+        User user = null;
+        if (principal != null) {
+            user = userService.findByName(principal.getName());
+        }
+
         return new ResponseEntity(commentsArrToHashMapWithAdditionalData(
-                commentService.getReviewComments(review, commentsNumber, sort)),
+                commentService.getReviewComments(review, commentsNumber, sort), user),
                 HttpStatus.OK);
     }
 
