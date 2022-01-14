@@ -123,6 +123,11 @@ public class DataLoader implements ApplicationRunner {
         ));
         comments.add(new Comment("Second comment qkql", users.get(1), reviews.get(0), comments.get(0)));
         comments.add(new Comment("Third comment by bob", users.get(2), reviews.get(0), comments.get(1)));
+        comments.add(new Comment("Fourth comment by bob", users.get(2), reviews.get(0), comments.get(0)));
+        comments.add(new Comment("Fifth comment by admin", users.get(0), reviews.get(0), null));
+        comments.add(new Comment("Sixth comment by qkql", users.get(1), reviews.get(0), comments.get(2)));
+        comments.add(new Comment("Seventh comment by qkql", users.get(1), reviews.get(0), comments.get(5)));
+        comments.add(new Comment("Eighth comment by qkql", users.get(1), reviews.get(0), comments.get(6)));
         commentRepository.saveAll(comments);
 
         ArrayList<Vote> votes = new ArrayList<>(Arrays.asList(

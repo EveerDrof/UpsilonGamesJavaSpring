@@ -64,4 +64,9 @@ public class Comment {
     public long getId() {
         return id;
     }
+
+    public User getUserId() {
+        return userId;
+    }
+
 }
