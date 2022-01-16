@@ -50,4 +50,11 @@ public class VoteService {
         }
         return voteRepository.checkIfUserVoted(comment, user, voteType) == 1;
     }
+
+    public boolean checkIfUserVoted(Review review, User user, boolean voteType) {
+        if (user == null) {
+            return false;
+        }
+        return voteRepository.checkIfUserVoted(review, user, voteType) == 1;
+    }
 }

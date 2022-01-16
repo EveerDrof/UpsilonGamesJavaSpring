@@ -35,4 +35,9 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
             " AND v.vote = ?3)",
             nativeQuery = true)
     long checkIfUserVoted(Comment comment, User user, Boolean voteType);
+
+    @Query(value = "SELECT EXISTS(SELECT * FROM vote v WHERE v.review_id= ?1 AND v.user_id = ?2 " +
+            " AND v.vote = ?3)",
+            nativeQuery = true)
+    long checkIfUserVoted(Review review, User user, Boolean voteType);
 }

@@ -82,7 +82,7 @@ public class VoteController {
         Vote vote = new Vote(voteType, user, comment);
         try {
             voteService.save(vote);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.CREATED);
         } catch (Exception ex) {
             return new ResponseEntity("Duplicate vote", HttpStatus.BAD_REQUEST);
         }

@@ -42,9 +42,9 @@ public class CommentController {
         result.put("dislikesNumber", voteService.getCommentDislikesNumber(comment));
         result.put("text", comment.getText());
         result.put("creationDate", comment.getCreationDate().getTime());
-        result.put("liked", voteService.checkIfUserVoted(comment, user, true));
-        result.put("disliked", voteService.checkIfUserVoted(comment, user, false));
-        result.put("user", comment.getUserId());
+        result.put("isLiked", voteService.checkIfUserVoted(comment, user, true));
+        result.put("isDisliked", voteService.checkIfUserVoted(comment, user, false));
+        result.put("userId", comment.getUserId());
         ArrayList<Object> children = new ArrayList<>();
         for (Comment child : comment.getChildren()) {
             children.add(commentToMapWithAdditionalData(child, user));

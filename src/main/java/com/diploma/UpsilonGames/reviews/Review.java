@@ -11,38 +11,40 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint( columnNames = { "userId", "gameId" } ) } )
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"userId", "gameId"})})
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(length = 9999)
-    private String reviewText;
+    private String text;
     @ManyToOne()
-    @JoinColumn(name = "gameId",referencedColumnName = "id", updatable = false,nullable = false)
+    @JoinColumn(name = "gameId", referencedColumnName = "id", updatable = false, nullable = false)
     private Game gameId;
     @ManyToOne()
-    @JoinColumn(name = "userId",referencedColumnName = "id", updatable = false,nullable = false)
+    @JoinColumn(name = "userId", referencedColumnName = "id", updatable = false, nullable = false)
     private User userId;
     @OneToMany(targetEntity = Vote.class, mappedBy = "reviewId", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
     private Timestamp creationDate;
-    public Review(){
+
+    public Review() {
 
     }
-    public Review(String reviewText,Game gameId,User userId){
-        this.reviewText = reviewText;
+
+    public Review(String reviewText, Game gameId, User userId) {
+        this.text = reviewText;
         this.gameId = gameId;
         this.userId = userId;
         this.creationDate = new Timestamp(new Date().getTime());
     }
 
-    public String getReviewText() {
-        return reviewText;
+    public String getText() {
+        return text;
     }
 
-    public void setReviewText(String reviewText) {
-        this.reviewText = reviewText;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public User getUserId() {
