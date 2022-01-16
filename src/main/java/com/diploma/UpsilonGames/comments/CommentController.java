@@ -63,23 +63,39 @@ public class CommentController {
         return result;
     }
 
-    @GetMapping("/review/{reviewId}")
-    public ResponseEntity getReviewComments(@PathVariable long reviewId,
-                                            @RequestParam long commentsNumber,
-                                            @RequestParam String sort,
-                                            Principal principal) {
+    public ResponseEntity getReviewComments(long reviewId,
+                                            long commentsNumber,
+                                            String sort,
+                                            User loggedUser) {
         if (!reviewService.existsById(reviewId)) {
             return new ResponseEntity("No such review", HttpStatus.BAD_REQUEST);
         }
         Review review = reviewService.findById(reviewId);
-        User user = null;
-        if (principal != null) {
-            user = userService.findByName(principal.getName());
-        }
 
         return new ResponseEntity(commentsArrToHashMapWithAdditionalData(
-                commentService.getReviewComments(review, commentsNumber, sort), user),
+                commentService.getReviewComments(review, commentsNumber, sort), loggedUser),
                 HttpStatus.OK);
+    }
+
+    @GetMapping("/review/{reviewId}/unauthorized")
+    public ResponseEntity getReviewCommentsUnauthorized(@PathVariable long reviewId,
+                                                        @RequestParam long commentsNumber,
+                                                        @RequestParam String sort) {
+        return getReviewComments(reviewId, commentsNumber, sort, null);
+    }
+
+    @GetMapping("/review/{reviewId}/authorized")
+    public ResponseEntity getReviewCommentsAuthorized(@PathVariable long reviewId,
+                                                      @RequestParam long commentsNumber,
+                                                      @RequestParam String sort,
+                                                      Principal principal) {
+        User loggedUser = null;
+        if (principal != null) {
+            loggedUser = userService.findByName(principal.getName());
+        } else {
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+        return getReviewComments(reviewId, commentsNumber, sort, loggedUser);
     }
 
     @PostMapping("/review/{reviewId}")
