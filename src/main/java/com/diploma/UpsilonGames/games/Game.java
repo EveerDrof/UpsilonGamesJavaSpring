@@ -20,27 +20,26 @@ public class Game {
     private String name;
     private double price;
     private String description;
-
-    public Game(String name, double price) {
-        this(name,price,"");
-    }
-
-    @OneToMany(targetEntity= Mark.class,mappedBy = "gameId",cascade = CascadeType.ALL)
+    private float discount;
+    @OneToMany(targetEntity = Mark.class, mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<Mark> marks = new ArrayList<>();
-
-    @OneToMany(targetEntity= Picture.class, mappedBy="gameId",cascade=CascadeType.ALL)
+    @OneToMany(targetEntity = Picture.class, mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<Picture> picturess = new ArrayList<>();
-
-    @OneToMany(targetEntity= Review.class, mappedBy="gameId",cascade=CascadeType.ALL)
+    @OneToMany(targetEntity = Review.class, mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
-
     @OneToOne
     private Picture shortcut;
-    public Game() {
-    }
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable
     private List<Tag> tags;
+
+    public Game(String name, double price) {
+        this(name, price, "");
+    }
+
+    public Game() {
+    }
+
     public Game(String name, double price, String description) {
         this.tags = new ArrayList<>();
         this.name = name;
@@ -54,12 +53,14 @@ public class Game {
         this.price = price;
         this.description = description;
     }
-    public Game(String name, double price, String description,Picture shortcut) {
+
+    public Game(String name, double price, String description, Picture shortcut) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.shortcut = shortcut;
     }
+
     public long getId() {
         return id;
     }
@@ -72,22 +73,24 @@ public class Game {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public double getPrice() {
         return price;
     }
+
     public String getDescription() {
         return description;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setShortcut(Picture shortcut){
-        this.shortcut = shortcut;
-    }
-
     public Picture getShortcut() {
         return shortcut;
+    }
+
+    public void setShortcut(Picture shortcut) {
+        this.shortcut = shortcut;
     }
 
     public List<Tag> getTags() {
@@ -97,7 +100,16 @@ public class Game {
     public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
-    public void addTag(Tag tag){
+
+    public void addTag(Tag tag) {
         this.tags.add(tag);
+    }
+
+    public float getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(float discount) {
+        this.discount = discount;
     }
 }

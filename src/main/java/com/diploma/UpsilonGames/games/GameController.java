@@ -1,7 +1,6 @@
 package com.diploma.UpsilonGames.games;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +18,17 @@ public class GameController {
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
-    private HashMap<String,Object> gameToSmallHashMap(Game game){
+
+    private HashMap<String, Object> gameToSmallHashMap(Game game) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("name", game.getName());
         map.put("price", game.getPrice());
         map.put("id", game.getId());
-        map.put("averageMark",gameService.getAvgMarkByGameId(game));
-        return  map;
+        map.put("discount", game.getDiscount());
+        map.put("averageMark", gameService.getAvgMarkByGameId(game));
+        return map;
     }
+
     @GetMapping("/{gameName}/short")
     public ResponseEntity getGameShort(@PathVariable String gameName) {
         Game game = gameService.findByName(gameName);
@@ -36,12 +38,14 @@ public class GameController {
         HashMap map = gameToSmallHashMap(game);
         return new ResponseEntity(map, HttpStatus.OK);
     }
-    private HashMap getFullGameData(Game game){
+
+    private HashMap getFullGameData(Game game) {
         HashMap map = gameToSmallHashMap(game);
-        map.put("description",game.getDescription());
-        map.put("tags",game.getTags());
+        map.put("description", game.getDescription());
+        map.put("tags", game.getTags());
         return map;
     }
+
     @GetMapping("/{gameName}/long")
     public ResponseEntity getGameLong(@PathVariable String gameName) {
         Game game = gameService.findByName(gameName);
@@ -61,23 +65,27 @@ public class GameController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
+
     @GetMapping("/allshort")
-    public ResponseEntity findAll(){
-        ArrayList<HashMap<String,Object>> records = new ArrayList<>();
-        gameService.findAll().stream().forEach((game)->{
-            HashMap<String,Object> record = gameToSmallHashMap(game);
+    public ResponseEntity findAll() {
+        ArrayList<HashMap<String, Object>> records = new ArrayList<>();
+        gameService.findAll().stream().forEach((game) -> {
+            HashMap<String, Object> record = gameToSmallHashMap(game);
             records.add(record);
         });
-        return new ResponseEntity(records,HttpStatus.OK);
+        return new ResponseEntity(records, HttpStatus.OK);
     }
+
     @GetMapping("/selection")
-    public ResponseEntity getSelection(String tags,double maxPrice,double minPrice,byte minMark,
+    public ResponseEntity getSelection(String tags, double maxPrice, double minPrice, byte minMark,
                                        String namePart) {
         String[] tagsArr = new String[0];
-        if(!Objects.equals(tags, "")){
+        if (!Objects.equals(tags, "")) {
             tagsArr = tags.split(",");
         }
-        return new ResponseEntity(gameService.select(tagsArr,maxPrice,minPrice,minMark,namePart)
-                .stream().map((game)->{return getFullGameData(game);}), HttpStatus.OK);
+        return new ResponseEntity(gameService.select(tagsArr, maxPrice, minPrice, minMark, namePart)
+                .stream().map((game) -> {
+                    return getFullGameData(game);
+                }), HttpStatus.OK);
     }
 }
