@@ -24,7 +24,7 @@ public class GameController {
         map.put("name", game.getName());
         map.put("price", game.getPrice());
         map.put("id", game.getId());
-        map.put("discount", game.getDiscount());
+        map.put("discountPrice", game.getDiscountPrice());
         map.put("averageMark", gameService.getAvgMarkByGameId(game));
         return map;
     }

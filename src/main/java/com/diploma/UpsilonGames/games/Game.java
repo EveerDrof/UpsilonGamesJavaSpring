@@ -20,11 +20,11 @@ public class Game {
     private String name;
     private double price;
     private String description;
-    private float discount;
+    private double discountPrice;
     @OneToMany(targetEntity = Mark.class, mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<Mark> marks = new ArrayList<>();
     @OneToMany(targetEntity = Picture.class, mappedBy = "gameId", cascade = CascadeType.ALL)
-    private List<Picture> picturess = new ArrayList<>();
+    private List<Picture> pictures = new ArrayList<>();
     @OneToMany(targetEntity = Review.class, mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
     @OneToOne
@@ -45,19 +45,16 @@ public class Game {
         this.name = name;
         this.price = price;
         this.description = description;
+        this.discountPrice = price;
     }
 
     public Game(long id, String name, double price, String description) {
+        this(name, price, description);
         this.id = id;
-        this.name = name;
-        this.price = price;
-        this.description = description;
     }
 
     public Game(String name, double price, String description, Picture shortcut) {
-        this.name = name;
-        this.price = price;
-        this.description = description;
+        this(name, price, description);
         this.shortcut = shortcut;
     }
 
@@ -105,11 +102,11 @@ public class Game {
         this.tags.add(tag);
     }
 
-    public float getDiscount() {
-        return discount;
+    public double getDiscountPrice() {
+        return discountPrice;
     }
 
-    public void setDiscount(float discount) {
-        this.discount = discount;
+    public void setDiscountPrice(double discountPrice) {
+        this.discountPrice = discountPrice;
     }
 }
