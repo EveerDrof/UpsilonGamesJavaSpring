@@ -78,12 +78,12 @@ public class GameController {
 
     @GetMapping("/selection")
     public ResponseEntity getSelection(String tags, double maxPrice, double minPrice, byte minMark,
-                                       String namePart) {
+                                       String namePart, double minDiscountPercent) {
         String[] tagsArr = new String[0];
         if (!Objects.equals(tags, "")) {
             tagsArr = tags.split(",");
         }
-        return new ResponseEntity(gameService.select(tagsArr, maxPrice, minPrice, minMark, namePart)
+        return new ResponseEntity(gameService.select(tagsArr, maxPrice, minPrice, minMark, namePart, minDiscountPercent)
                 .stream().map((game) -> {
                     return getFullGameData(game);
                 }), HttpStatus.OK);

@@ -56,10 +56,12 @@ public class DataLoader implements ApplicationRunner {
     }
 
     public void run(ApplicationArguments args) throws Exception {
-        ArrayList<Game> games = new ArrayList<>(Arrays.asList(
+        ArrayList<Game> games = new ArrayList(Arrays.asList(
                 new Game("Stalker", 500, "Game about Chernobyl"),
-                new Game("Devil May Cry", 1000, "Game about demons"))
-        );
+                new Game("Devil May Cry", 1000, "Game about demons"),
+                new Game("Mass effect", 2000, "This is space opera")
+        ));
+        games.get(2).setDiscountPrice(1000);
         ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
                 new Tag("shooter"),
                 new Tag("demons"),
@@ -68,7 +70,8 @@ public class DataLoader implements ApplicationRunner {
                 new Tag("inventory management"),
                 new Tag("sci-fi"),
                 new Tag("open world"),
-                new Tag("anomalies")
+                new Tag("anomalies"),
+                new Tag("space")
         ));
         for (int i = 0; i < 2; i++) {
             games.get(i).addTag(tags.get(i));
@@ -76,6 +79,9 @@ public class DataLoader implements ApplicationRunner {
         for (int i = 2; i < tags.size(); i++) {
             games.get(0).addTag(tags.get(i));
         }
+        games.get(2).addTag(tags.get(2));
+        games.get(2).addTag(tags.get(5));
+        games.get(2).addTag(tags.get(8));
         tagRepository.saveAll(tags);
         gameRepository.saveAll(games);
         ArrayList<User> users = new ArrayList<>(Arrays.asList(
@@ -104,13 +110,21 @@ public class DataLoader implements ApplicationRunner {
                         games.get(0)),
                 new Picture(blobHelper.createBlob(
                         new FileInputStream("./pictures/STAKLERSCREENSHOT2.jpg").readAllBytes()),
-                        games.get(0))
+                        games.get(0)),
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/MassEffectLogo.jpg").readAllBytes()),
+                        games.get(2)),
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/MassEffectScreenshot.jpg").readAllBytes()),
+                        games.get(2))
         ));
         pictureRepository.saveAll(shortcuts);
         for (int i = 0; i < 2; i++) {
             games.get(i).setShortcut(shortcuts.get(i));
             gameRepository.save(games.get(i));
         }
+        games.get(2).setShortcut(shortcuts.get(4));
+        gameRepository.save(games.get(2));
         ArrayList<Review> reviews = new ArrayList<>(Arrays.asList(
                 new Review("This is a review for STALKER by USER 1", games.get(0), users.get(0)),
                 new Review("This is a review for DMC by USER 1", games.get(1), users.get(0)),
