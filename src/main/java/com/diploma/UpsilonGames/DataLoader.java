@@ -117,7 +117,10 @@ public class DataLoader implements ApplicationRunner {
                         games.get(2)),
                 new Picture(blobHelper.createBlob(
                         new FileInputStream("./pictures/MassEffectScreenshot.jpg").readAllBytes()),
-                        games.get(2))
+                        games.get(2)),
+                new Picture(blobHelper.createBlob(
+                        new FileInputStream("./pictures/dmcScreenshot.png").readAllBytes()),
+                        games.get(1))
         ));
         pictureRepository.saveAll(shortcuts);
         for (int i = 0; i < 2; i++) {
