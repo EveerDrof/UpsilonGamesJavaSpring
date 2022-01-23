@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 
 @Service
@@ -60,10 +61,39 @@ public class GameService implements IMarkAcceptableService {
     }
 
     public ArrayList<Game> select(String[] tagsArr, double maxPrice, double minPrice, byte minMark,
-                                  String namePart, double minDiscountPercent) {
+                                  String namePart, double minDiscountPercent, String sortType) {
+        ArrayList<Game> games;
         if (tagsArr.length == 0) {
-            return gameRepository.select(maxPrice, minPrice, minMark, namePart, minDiscountPercent);
+            games = gameRepository.select(maxPrice, minPrice, minMark, namePart, minDiscountPercent);
+        } else {
+            games = gameRepository.select(tagsArr, maxPrice, minPrice, minMark, namePart, minDiscountPercent, tagsArr.length);
         }
-        return gameRepository.select(tagsArr, maxPrice, minPrice, minMark, namePart, minDiscountPercent);
+        Function<Double, Integer> comparatorConverterToInteger = (Double value) -> {
+            if (value > 0) {
+                return -1;
+            }
+            if (value < 0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        };
+        switch (sortType) {
+            case "discount":
+                games.sort((a, b) -> {
+                    double diff = ((a.getPrice() - a.getDiscountPrice()) / a.getPrice()) -
+                            ((b.getPrice() - b.getDiscountPrice()) / b.getPrice());
+                    return comparatorConverterToInteger.apply(diff);
+                });
+                break;
+            case "mark":
+                games.sort((a, b) -> {
+                    double diff = (markRepository.getAverageMarkByGameId(a) -
+                            markRepository.getAverageMarkByGameId(b));
+                    return comparatorConverterToInteger.apply(diff);
+                });
+                break;
+        }
+        return games;
     }
 }

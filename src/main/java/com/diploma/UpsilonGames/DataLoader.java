@@ -62,6 +62,7 @@ public class DataLoader implements ApplicationRunner {
                 new Game("Mass effect", 2000, "This is space opera")
         ));
         games.get(2).setDiscountPrice(1000);
+        games.get(1).setDiscountPrice(750);
         ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
                 new Tag("shooter"),
                 new Tag("demons"),
