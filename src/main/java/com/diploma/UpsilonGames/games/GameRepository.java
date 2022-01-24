@@ -15,7 +15,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     boolean existsByName(String name);
 
     @Query(value = " SELECT DISTINCT(g.id),g.* " +
-            " FROM game g INNER JOIN game_tags gt ON g.id=gt.games_id INNER JOIN tag t ON " +
+            " FROM game g " +
+            " INNER JOIN game_tags gt ON g.id=gt.games_id INNER JOIN tag t ON " +
             " t.id = gt.tags_id LEFT JOIN mark m ON g.id = m.game_id WHERE t.name IN ?1 AND " +
             " g.discount_price <= ?2 AND g.price >= ?3 AND " +
             " (SELECT IFNULL((SELECT AVG(m.mark) " +
