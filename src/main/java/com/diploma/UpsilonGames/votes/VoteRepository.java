@@ -12,7 +12,8 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
             nativeQuery = true)
     long getReviewLikesNumber(Review reviewId);
 
-    @Query(value = "SELECT COUNT(*)  FROM vote v WHERE v.review_id = ?1 AND v.vote = false",
+    @Query(value = "SELECT COUNT(*) " +
+            "  FROM vote v WHERE v.review_id = ?1 AND v.vote = false",
             nativeQuery = true)
     long getReviewDislikesNumber(Review reviewId);
 
