@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    @Query(value = "SELECT COUNT(*)  FROM vote v WHERE v.review_id = ?1 AND v.vote = true",
+    @Query(value = "SELECT COUNT(*) " +
+            " FROM vote v WHERE v.review_id = ?1 AND v.vote = true",
             nativeQuery = true)
     long getReviewLikesNumber(Review reviewId);
 
