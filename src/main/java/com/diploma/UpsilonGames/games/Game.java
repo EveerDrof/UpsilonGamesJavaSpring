@@ -1,5 +1,6 @@
 package com.diploma.UpsilonGames.games;
 
+import com.diploma.UpsilonGames.foreignReviews.ForeignReviewsData;
 import com.diploma.UpsilonGames.marks.Mark;
 import com.diploma.UpsilonGames.pictures.Picture;
 import com.diploma.UpsilonGames.reviews.Review;
@@ -27,6 +28,12 @@ public class Game {
     private List<Picture> pictures = new ArrayList<>();
     @OneToMany(targetEntity = Review.class, mappedBy = "gameId", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "foreign_reviews_data_steam", referencedColumnName = "id")
+    private ForeignReviewsData foreignReviewsDataSteam;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "foreign_reviews_data_metacritic", referencedColumnName = "id")
+    private ForeignReviewsData foreignReviewsDataMetacritic;
     @OneToOne
     private Picture shortcut;
     @ManyToMany(cascade = CascadeType.MERGE)
@@ -109,4 +116,20 @@ public class Game {
     public void setDiscountPrice(double discountPrice) {
         this.discountPrice = discountPrice;
     }
+
+    public ForeignReviewsData getForeignReviewsDataSteam() {
+        return foreignReviewsDataSteam;
+    }
+
+    public void setForeignReviewsDataSteam(ForeignReviewsData foreignReviewsDataSteam) {
+        this.foreignReviewsDataSteam = foreignReviewsDataSteam;
+    }
+
+//    public ForeignReviewsData getForeignReviewsDataMetacritic() {
+//        return foreignReviewsDataMetacritic;
+//    }
+//
+//    public void setForeignReviewsDataMetacritic(ForeignReviewsData foreignReviewsDataMetacritic) {
+//        this.foreignReviewsDataMetacritic = foreignReviewsDataMetacritic;
+//    }
 }

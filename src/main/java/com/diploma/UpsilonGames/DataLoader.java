@@ -2,6 +2,7 @@ package com.diploma.UpsilonGames;
 
 import com.diploma.UpsilonGames.comments.Comment;
 import com.diploma.UpsilonGames.comments.CommentRepository;
+import com.diploma.UpsilonGames.foreignReviews.ForeignReviewsData;
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.games.GameRepository;
 import com.diploma.UpsilonGames.marks.Mark;
@@ -17,6 +18,10 @@ import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserRepository;
 import com.diploma.UpsilonGames.votes.Vote;
 import com.diploma.UpsilonGames.votes.VoteRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -25,6 +30,7 @@ import org.springframework.stereotype.Component;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -38,7 +44,7 @@ public class DataLoader implements ApplicationRunner {
     private VoteRepository voteRepository;
     private CommentRepository commentRepository;
     private BlobHelper blobHelper;
-
+    private OkHttpClient client;
 
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
@@ -53,6 +59,7 @@ public class DataLoader implements ApplicationRunner {
         this.tagRepository = tagRepository;
         this.voteRepository = voteRepository;
         this.commentRepository = commentRepository;
+        client = new OkHttpClient();
     }
 
     public void run(ApplicationArguments args) throws Exception {
@@ -63,6 +70,25 @@ public class DataLoader implements ApplicationRunner {
         ));
         games.get(2).setDiscountPrice(1000);
         games.get(1).setDiscountPrice(750);
+        String[] urls = new String[]{"https://store.steampowered.com/appreviews/4500?json=1",
+                "https://store.steampowered.com/appreviews/631510?json=1",
+                "https://store.steampowered.com/appreviews/1328670?json=1"};
+        for (int i = 0; i < games.size(); i++) {
+            Request request = new Request.Builder()
+                    .url(urls[i])
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                HashMap<String, Object> result = new ObjectMapper().readValue(response.body().string(), HashMap.class);
+                games.get(i).setForeignReviewsDataSteam(new ForeignReviewsData(
+                        ForeignReviewsData.SiteType.STEAM,
+                        games.get(i),
+                        result
+                ));
+            } catch (Exception ex) {
+
+            }
+        }
         ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
                 new Tag("shooter"),
                 new Tag("demons"),

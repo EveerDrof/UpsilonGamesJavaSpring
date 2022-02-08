@@ -43,6 +43,7 @@ public class GameController {
         HashMap map = gameToSmallHashMap(game);
         map.put("description", game.getDescription());
         map.put("tags", game.getTags());
+        map.put("foreignReviewsDataSteam", game.getForeignReviewsDataSteam());
         return map;
     }
 
