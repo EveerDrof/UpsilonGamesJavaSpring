@@ -3,6 +3,8 @@ package com.diploma.UpsilonGames.marks;
 import com.diploma.UpsilonGames.IMarkAcceptableService;
 import com.diploma.UpsilonGames.games.Game;
 import com.diploma.UpsilonGames.games.GameService;
+import com.diploma.UpsilonGames.storeRecords.StoreRecordService;
+import com.diploma.UpsilonGames.storeRecords.StoreRecordType;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,12 +24,15 @@ public class MarkController {
     private MarkService markService;
     private IMarkAcceptableService<User> userService;
     private IMarkAcceptableService<Game> gameService;
+    private StoreRecordService storeRecordService;
 
     @Autowired
-    public MarkController(@Lazy MarkService markService,@Lazy UserService userService,@Lazy GameService gameService) {
+    public MarkController(MarkService markService, UserService userService, GameService gameService,
+                          StoreRecordService storeRecordService) {
         this.markService = markService;
         this.userService = userService;
         this.gameService = gameService;
+        this.storeRecordService = storeRecordService;
     }
 
     private long parseId(String id, String errorMessage) throws MarkException {
@@ -47,12 +54,26 @@ public class MarkController {
     private List getUserAndGame(String userId,String gameId)throws MarkException{
         long longUserId = parseId(userId, "User id is incorrect");
         long longGameId = parseId(gameId, "Game id is incorrect");
-        User user = checkAndFind(longUserId, userService, "User not found");
-        Game game = checkAndFind(longGameId, gameService, "Game not found");
+        User user;
+        if(longUserId == -1){
+            user = null;
+        } else {
+            user = checkAndFind(longUserId, userService, "User not found");
+        }
+        Game game;
+        if(longGameId == -1){
+            game = null;
+        } else {
+            game = checkAndFind(longGameId, gameService, "Game not found");
+        }
         return Arrays.asList(user,game);
     }
     @PostMapping
-    public ResponseEntity addMark(@RequestParam String userId, @RequestParam String gameId, @RequestParam String mark) {
+    public ResponseEntity addMark(@RequestParam String userId, @RequestParam String gameId,
+                                  @RequestParam String mark, Principal principal) {
+        if(((UserService)userService).findByName(principal.getName()).getId() != Long.parseLong(userId)){
+            return new ResponseEntity("It is not your id",HttpStatus.UNAUTHORIZED);
+        }
         byte byteMark = -1;
         try {
             byteMark = Byte.parseByte(mark);
@@ -69,10 +90,17 @@ public class MarkController {
             List result = getUserAndGame(userId,gameId);
             User user = (User)result.get(0);
             Game game = (Game)result.get(1);
-            markService.save(new  Mark(byteMark,game,user));
-            return new ResponseEntity("Successfully added new mark", HttpStatus.CREATED);
+            if(storeRecordService.existsByGameIdAndUserIdAndType(game,user, StoreRecordType.IN_LIBRARY)){
+                markService.save(new  Mark(byteMark,game,user));
+                return new ResponseEntity("Successfully added new mark", HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity("This game is not in your library",
+                        HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+            }
         } catch (MarkException markException) {
             return new ResponseEntity(markException.getMessage(), markException.getStatus());
+        }catch (Exception exception) {
+            return new ResponseEntity("Duplicate entry", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -86,6 +114,8 @@ public class MarkController {
             return new ResponseEntity(mark, HttpStatus.OK);
         } catch (MarkException markException) {
             return new ResponseEntity(markException.getMessage(), markException.getStatus());
+        }catch (Exception markException) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
 }

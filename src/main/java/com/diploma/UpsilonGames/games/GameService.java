@@ -8,14 +8,16 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 
 @Service
 public class GameService implements IMarkAcceptableService {
     private GameRepository gameRepository;
     private MarkRepository markRepository;
+
     @Autowired
-    public GameService(@Lazy GameRepository gameRepository,@Lazy MarkRepository markRepository) {
+    public GameService(@Lazy GameRepository gameRepository, @Lazy MarkRepository markRepository) {
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
     }
@@ -25,12 +27,14 @@ public class GameService implements IMarkAcceptableService {
     }
 
     public Game save(Game game) {
-       return gameRepository.save(game);
+        return gameRepository.save(game);
     }
-    public boolean existsById(long gameId){
+
+    public boolean existsById(long gameId) {
         return gameRepository.existsById(gameId);
     }
-    public Game findById(long id){
+
+    public Game findById(long id) {
         return gameRepository.getById(id);
     }
 
@@ -38,7 +42,7 @@ public class GameService implements IMarkAcceptableService {
         byte mark;
         try {
             mark = markRepository.getAverageMarkByGameId(gameId);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             mark = -1;
         }
         return mark;
@@ -50,5 +54,49 @@ public class GameService implements IMarkAcceptableService {
 
     public ArrayList<Game> findAll() {
         return gameRepository.findAll();
+    }
+
+    public boolean existsByName(String name) {
+        return gameRepository.existsByName(name);
+    }
+
+    public ArrayList<Game> select(String[] tagsArr, double maxPrice, double minPrice, byte minMark,
+                                  String namePart, double minDiscountPercent, String sortType,
+                                  int limit) {
+        ArrayList<Game> games;
+        if (tagsArr.length == 0) {
+            games = gameRepository.select(maxPrice, minPrice, minMark, namePart,
+                    minDiscountPercent, limit);
+        } else {
+            games = gameRepository.select(tagsArr, maxPrice, minPrice, minMark,
+                    namePart, minDiscountPercent, tagsArr.length, limit);
+        }
+        Function<Double, Integer> comparatorConverterToInteger = (Double value) -> {
+            if (value > 0) {
+                return -1;
+            }
+            if (value < 0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        };
+        switch (sortType) {
+            case "discount":
+                games.sort((a, b) -> {
+                    double diff = ((a.getPrice() - a.getDiscountPrice()) / a.getPrice()) -
+                            ((b.getPrice() - b.getDiscountPrice()) / b.getPrice());
+                    return comparatorConverterToInteger.apply(diff);
+                });
+                break;
+            case "mark":
+                games.sort((a, b) -> {
+                    double diff = (markRepository.getAverageMarkByGameId(a) -
+                            markRepository.getAverageMarkByGameId(b));
+                    return comparatorConverterToInteger.apply(diff);
+                });
+                break;
+        }
+        return games;
     }
 }
