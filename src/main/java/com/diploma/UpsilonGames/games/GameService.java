@@ -61,12 +61,15 @@ public class GameService implements IMarkAcceptableService {
     }
 
     public ArrayList<Game> select(String[] tagsArr, double maxPrice, double minPrice, byte minMark,
-                                  String namePart, double minDiscountPercent, String sortType) {
+                                  String namePart, double minDiscountPercent, String sortType,
+                                  int limit) {
         ArrayList<Game> games;
         if (tagsArr.length == 0) {
-            games = gameRepository.select(maxPrice, minPrice, minMark, namePart, minDiscountPercent);
+            games = gameRepository.select(maxPrice, minPrice, minMark, namePart,
+                    minDiscountPercent, limit);
         } else {
-            games = gameRepository.select(tagsArr, maxPrice, minPrice, minMark, namePart, minDiscountPercent, tagsArr.length);
+            games = gameRepository.select(tagsArr, maxPrice, minPrice, minMark,
+                    namePart, minDiscountPercent, tagsArr.length, limit);
         }
         Function<Double, Integer> comparatorConverterToInteger = (Double value) -> {
             if (value > 0) {

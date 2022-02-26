@@ -20,6 +20,7 @@ public class Game {
     private long id;
     private String name;
     private double price;
+    @Column(length = 99999)
     private String description;
     private double discountPrice;
     @OneToMany(targetEntity = Mark.class, mappedBy = "gameId", cascade = CascadeType.ALL)

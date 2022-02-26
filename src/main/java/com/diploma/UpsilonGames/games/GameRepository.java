@@ -24,10 +24,12 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             " g.name LIKE %?5% AND " +
             " (((g.price-g.discount_price)/g.price)*100) >= ?6 " +
             " GROUP BY g.id " +
-            " HAVING COUNT(DISTINCT gt.tags_id) = ?7 ",
+            " HAVING COUNT(DISTINCT gt.tags_id) = ?7 " +
+            " LIMIT ?8",
             nativeQuery = true)
     ArrayList<Game> select(String[] tagsArr, double maxPrice, double minPrice, byte minMark,
-                           String namePart, double minDiscountPercent, int tagsArrLength);
+                           String namePart, double minDiscountPercent, int tagsArrLength,
+                           int limit);
 
     @Query(value = " SELECT DISTINCT(g.id),g.* " +
             " FROM game g INNER JOIN game_tags gt ON g.id=gt.games_id INNER JOIN tag t ON " +
@@ -36,8 +38,10 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             " (SELECT IFNULL((SELECT AVG(m.mark) " +
             " FROM mark m WHERE g.id=m.game_id),-1)) >= ?3  AND" +
             " g.name LIKE %?4%  AND " +
-            " (((g.price-g.discount_price)/g.price)*100) >= ?5",
+            " (((g.price-g.discount_price)/g.price)*100) >= ?5 " +
+            " LIMIT ?6",
             nativeQuery = true)
     ArrayList<Game> select(double maxPrice, double minPrice, byte minMark,
-                           String namePart, double minDiscountPercent);
+                           String namePart, double minDiscountPercent,
+                           int limit);
 }

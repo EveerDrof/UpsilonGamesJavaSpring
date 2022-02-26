@@ -16,7 +16,6 @@ import com.diploma.UpsilonGames.tags.Tag;
 import com.diploma.UpsilonGames.tags.TagRepository;
 import com.diploma.UpsilonGames.users.User;
 import com.diploma.UpsilonGames.users.UserRepository;
-import com.diploma.UpsilonGames.votes.Vote;
 import com.diploma.UpsilonGames.votes.VoteRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
@@ -27,14 +26,15 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.util.*;
 
 @Component
 public class DataLoader implements ApplicationRunner {
 
+    static int commentsNumber = 0;
     private UserRepository userRepository;
     private GameRepository gameRepository;
     private MarkRepository markRepository;
@@ -62,125 +62,156 @@ public class DataLoader implements ApplicationRunner {
         client = new OkHttpClient();
     }
 
+    private Picture loadPicture(String pictureName, Game game) throws Exception {
+        return new Picture(blobHelper.createBlob(
+                new FileInputStream(pictureName).readAllBytes()),
+                game);
+    }
+
+    private void addComments(Review review, ArrayList<User> users, Comment parent, int level) {
+        if (level == 0) {
+            return;
+        }
+
+        for (User user : users) {
+            Comment comment = new Comment("Comment " + commentsNumber + " by " + user.getName(),
+                    user, review, parent);
+            commentsNumber++;
+            comment = commentRepository.save(comment);
+            addComments(review, users, comment, level - 1);
+        }
+    }
+
     public void run(ApplicationArguments args) throws Exception {
-        ArrayList<Game> games = new ArrayList(Arrays.asList(
-                new Game("Stalker", 500, "Game about Chernobyl"),
-                new Game("Devil May Cry", 1000, "Game about demons"),
-                new Game("Mass effect", 2000, "This is space opera")
+        ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
+                new Tag("shooter"),
+                new Tag("demons"),
+                new Tag("strategy"),
+                new Tag("rpg"),
+                new Tag("chernobyl"),
+                new Tag("war"),
+                new Tag("aliens"),
+                new Tag("horror"),
+                new Tag("multiplayer"),
+                new Tag("fantasy"),
+                new Tag("action"),
+                new Tag("stealth"),
+                new Tag("4x"),
+                new Tag("steampunk"),
+                new Tag("assassins"),
+                new Tag("metroid"),
+                new Tag("crime"),
+                new Tag("2d"),
+                new Tag("monsters"),
+                new Tag("sci-fi"),
+                new Tag("anomalies"),
+                new Tag("space")
         ));
-        games.get(2).setDiscountPrice(1000);
-        games.get(1).setDiscountPrice(750);
-        String[] urls = new String[]{"https://store.steampowered.com/appreviews/4500?json=1",
-                "https://store.steampowered.com/appreviews/631510?json=1",
-                "https://store.steampowered.com/appreviews/1328670?json=1"};
-        for (int i = 0; i < games.size(); i++) {
+        tagRepository.saveAll(tags);
+        Random random = new Random();
+        ArrayList<Game> games = new ArrayList<>();
+        File rootDataDir = new File("pictures/Site");
+
+        for (File dir : rootDataDir.listFiles()) {
+            String gameName = dir.getName();
+            String description = "";
+            int steamId = 0;
+            ArrayList<String> picturesNames = new ArrayList<>();
+            for (File file : dir.listFiles()) {
+
+                if (file.getName().contains("txt")) {
+                    steamId = Integer.parseInt(file.getName().substring(0,
+                            file.getName().indexOf('.')));
+                    description = Files.readString(file.toPath());
+                    continue;
+                }
+                if (file.getName().equals("tags.txt")) {
+                    continue;
+                }
+                if (!file.getName().equals("logo.png")) {
+                    picturesNames.add(file.getAbsolutePath());
+                }
+            }
+            Game game = new Game(gameName, (Math.abs(random.nextInt()) % 4000) + 1, description);
+            HashSet<Tag> currentGameTags = new HashSet<>();
+            for (int i = 0; i < 10; i++) {
+                Tag nextTag = tags.get(Math.abs(random.nextInt()) % tags.size());
+                if (!currentGameTags.contains(nextTag)) {
+                    currentGameTags.add(nextTag);
+                }
+            }
+            game.setTags(currentGameTags.stream().toList());
+            if (Math.abs(random.nextInt()) % 4 == 1) {
+                game.setDiscountPrice((Math.abs(random.nextInt()) % game.getPrice()) + 1);
+            }
+            game = gameRepository.save(game);
+            games.add(game);
+            Picture logo = loadPicture(dir.getAbsolutePath() + "/logo.png", game);
+            game.setShortcut(logo);
+            pictureRepository.save(logo);
+            for (String pictureName : picturesNames) {
+                pictureRepository.save(loadPicture(pictureName, game));
+            }
             Request request = new Request.Builder()
-                    .url(urls[i])
+                    .url("https://store.steampowered.com/appreviews/" + steamId + "?json=1")
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
                 HashMap<String, Object> result = new ObjectMapper().readValue(response.body().string(), HashMap.class);
-                games.get(i).setForeignReviewsDataSteam(new ForeignReviewsData(
+                game.setForeignReviewsDataSteam(new ForeignReviewsData(
                         ForeignReviewsData.SiteType.STEAM,
-                        games.get(i),
+                        game,
                         result
                 ));
+                gameRepository.save(game);
             } catch (Exception ex) {
 
             }
         }
-        ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
-                new Tag("shooter"),
-                new Tag("demons"),
-                new Tag("rpg"),
-                new Tag("chernobyl"),
-                new Tag("inventory management"),
-                new Tag("sci-fi"),
-                new Tag("open world"),
-                new Tag("anomalies"),
-                new Tag("space")
-        ));
-        for (int i = 0; i < 2; i++) {
-            games.get(i).addTag(tags.get(i));
-        }
-        for (int i = 2; i < tags.size(); i++) {
-            games.get(0).addTag(tags.get(i));
-        }
-        games.get(2).addTag(tags.get(2));
-        games.get(2).addTag(tags.get(5));
-        games.get(2).addTag(tags.get(8));
-        tagRepository.saveAll(tags);
-        gameRepository.saveAll(games);
         ArrayList<User> users = new ArrayList<>(Arrays.asList(
                 new User("admin", "Univac00Eniac_1", UserRole.ADMIN),
                 new User("qkql", "12_Passwsdfgdord", UserRole.USER),
-                new User("bob", "Passwdsdfgsdfg_00", UserRole.USER)
+                new User("bob", "Passwdsdfgsdfg_00", UserRole.USER),
+                new User("michael", "000___11AAaaaaa", UserRole.USER),
+                new User("peter", "000___AAaaaaaBBB", UserRole.USER)
         ));
         userRepository.saveAll(users);
-        ArrayList<Mark> marks = new ArrayList<>(Arrays.asList(
-                new Mark((byte) 50, games.get(0), users.get(1)),
-                new Mark((byte) 25, games.get(1), users.get(1)),
-                new Mark((byte) 50, games.get(0), users.get(2)),
-                new Mark((byte) 100, games.get(1), users.get(2))
-        ));
-        markRepository.saveAll(marks);
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        ArrayList<Picture> shortcuts = new ArrayList<>(Arrays.asList(
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/S.T.A.L.K.E.R-logo.png").readAllBytes()),
-                        games.get(0)),
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/DMC.webp").readAllBytes()),
-                        games.get(1)),
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/STAKLERSCREENSHOT.jpg").readAllBytes()),
-                        games.get(0)),
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/STAKLERSCREENSHOT2.jpg").readAllBytes()),
-                        games.get(0)),
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/MassEffectLogo.jpg").readAllBytes()),
-                        games.get(2)),
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/MassEffectScreenshot.jpg").readAllBytes()),
-                        games.get(2)),
-                new Picture(blobHelper.createBlob(
-                        new FileInputStream("./pictures/dmcScreenshot.png").readAllBytes()),
-                        games.get(1))
-        ));
-        pictureRepository.saveAll(shortcuts);
-        for (int i = 0; i < 2; i++) {
-            games.get(i).setShortcut(shortcuts.get(i));
-            gameRepository.save(games.get(i));
+        ArrayList<Review> reviews = new ArrayList<>();
+        for (Game game : games) {
+            for (User user : users) {
+                markRepository.save(new Mark(
+                        (byte) (Math.abs(random.nextInt()) % 100), game, user)
+                );
+                Review review = new Review("Test review for " + game.getName() + " by " +
+                        user.getName(), game, user);
+                reviews.add(review);
+                reviewRepository.save(review);
+            }
         }
-        games.get(2).setShortcut(shortcuts.get(4));
-        gameRepository.save(games.get(2));
-        ArrayList<Review> reviews = new ArrayList<>(Arrays.asList(
-                new Review("This is a review for STALKER by USER 1", games.get(0), users.get(0)),
-                new Review("This is a review for DMC by USER 1", games.get(1), users.get(0)),
-                new Review("This is a review for STALKER by USER 2", games.get(0), users.get(1)),
-                new Review("This is a review for DMC by USER 2", games.get(1), users.get(1))
-        ));
-        reviewRepository.saveAll(reviews);
-        ArrayList<Comment> comments = new ArrayList<>(Arrays.asList(
-                new Comment("First comment by admin", users.get(0), reviews.get(0), null)
-        ));
-        comments.add(new Comment("Second comment qkql", users.get(1), reviews.get(0), comments.get(0)));
-        comments.add(new Comment("Third comment by bob", users.get(2), reviews.get(0), comments.get(1)));
-        comments.add(new Comment("Fourth comment by bob", users.get(2), reviews.get(0), comments.get(0)));
-        comments.add(new Comment("Fifth comment by admin", users.get(0), reviews.get(0), null));
-        comments.add(new Comment("Sixth comment by qkql", users.get(1), reviews.get(0), comments.get(2)));
-        comments.add(new Comment("Seventh comment by qkql", users.get(1), reviews.get(0), comments.get(5)));
-        comments.add(new Comment("Eighth comment by qkql", users.get(1), reviews.get(0), comments.get(6)));
-        commentRepository.saveAll(comments);
+        for (Review review : reviews) {
+            addComments(review, users, null, 2);
+        }
 
-        ArrayList<Vote> votes = new ArrayList<>(Arrays.asList(
-                new Vote(true, users.get(0), reviews.get(0)),
-                new Vote(false, users.get(0), reviews.get(1)),
-                new Vote(false, users.get(0), comments.get(0)),
-                new Vote(true, users.get(0), comments.get(1)),
-                new Vote(false, users.get(0), comments.get(2))
-        ));
-        voteRepository.saveAll(votes);
+        System.out.println("Initialization completed");
+//        ArrayList<Comment> comments = new ArrayList<>(Arrays.asList(
+//                new Comment("First comment by admin", users.get(0), reviews.get(0), null)
+//        ));
+//        comments.add(new Comment("Second comment qkql", users.get(1), reviews.get(0), comments.get(0)));
+//        comments.add(new Comment("Third comment by bob", users.get(2), reviews.get(0), comments.get(1)));
+//        comments.add(new Comment("Fourth comment by bob", users.get(2), reviews.get(0), comments.get(0)));
+//        comments.add(new Comment("Fifth comment by admin", users.get(0), reviews.get(0), null));
+//        comments.add(new Comment("Sixth comment by qkql", users.get(1), reviews.get(0), comments.get(2)));
+//        comments.add(new Comment("Seventh comment by qkql", users.get(1), reviews.get(0), comments.get(5)));
+//        comments.add(new Comment("Eighth comment by qkql", users.get(1), reviews.get(0), comments.get(6)));
+//        commentRepository.saveAll(comments);
+//
+//        ArrayList<Vote> votes = new ArrayList<>(Arrays.asList(
+//                new Vote(true, users.get(0), reviews.get(0)),
+//                new Vote(false, users.get(0), reviews.get(1)),
+//                new Vote(false, users.get(0), comments.get(0)),
+//                new Vote(true, users.get(0), comments.get(1)),
+//                new Vote(false, users.get(0), comments.get(2))
+//        ));
+//        voteRepository.saveAll(votes);
     }
 }
