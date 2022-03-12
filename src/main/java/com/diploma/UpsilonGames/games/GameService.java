@@ -91,8 +91,10 @@ public class GameService implements IMarkAcceptableService {
                 break;
             case "mark":
                 games.sort((a, b) -> {
-                    double diff = (markRepository.getAverageMarkByGameId(a) -
-                            markRepository.getAverageMarkByGameId(b));
+                    double diff = (
+                            markRepository.getAverageMarkByGameId(a)
+                                    - markRepository.getAverageMarkByGameId(b)
+                    );
                     return comparatorConverterToInteger.apply(diff);
                 });
                 break;
