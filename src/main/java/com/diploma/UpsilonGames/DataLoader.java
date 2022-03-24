@@ -111,7 +111,7 @@ public class DataLoader implements ApplicationRunner {
         Random random = new Random();
         ArrayList<Game> games = new ArrayList<>();
         File rootDataDir = new File("pictures/Site");
-
+        String pictureType = ".jpg";
         for (File dir : rootDataDir.listFiles()) {
             String gameName = dir.getName();
             String description = "";
@@ -128,7 +128,7 @@ public class DataLoader implements ApplicationRunner {
                 if (file.getName().equals("tags.txt")) {
                     continue;
                 }
-                if (!file.getName().equals("logo.png")) {
+                if (!file.getName().equals("logo" + pictureType)) {
                     picturesNames.add(file.getAbsolutePath());
                 }
             }
@@ -146,7 +146,7 @@ public class DataLoader implements ApplicationRunner {
             }
             game = gameRepository.save(game);
             games.add(game);
-            Picture logo = loadPicture(dir.getAbsolutePath() + "/logo.png", game);
+            Picture logo = loadPicture(dir.getAbsolutePath() + "/logo" + pictureType, game);
             game.setShortcut(logo);
             pictureRepository.save(logo);
             for (String pictureName : picturesNames) {
