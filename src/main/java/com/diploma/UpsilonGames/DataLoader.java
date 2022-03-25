@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -45,6 +46,7 @@ public class DataLoader implements ApplicationRunner {
     private CommentRepository commentRepository;
     private BlobHelper blobHelper;
     private OkHttpClient client;
+    private RandomTextGenerator randomTextGenerator;
 
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
@@ -59,7 +61,8 @@ public class DataLoader implements ApplicationRunner {
         this.tagRepository = tagRepository;
         this.voteRepository = voteRepository;
         this.commentRepository = commentRepository;
-        client = new OkHttpClient();
+        this.client = new OkHttpClient();
+        this.randomTextGenerator = new RandomTextGenerator();
     }
 
     private Picture loadPicture(String pictureName, Game game) throws Exception {
@@ -74,7 +77,7 @@ public class DataLoader implements ApplicationRunner {
         }
 
         for (User user : users) {
-            Comment comment = new Comment("Comment " + commentsNumber + " by " + user.getName(),
+            Comment comment = new Comment(randomTextGenerator.getComment(),
                     user, review, parent);
             commentsNumber++;
             comment = commentRepository.save(comment);
@@ -83,6 +86,7 @@ public class DataLoader implements ApplicationRunner {
     }
 
     public void run(ApplicationArguments args) throws Exception {
+        long startingTime = System.nanoTime();
         ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
                 new Tag("shooter"),
                 new Tag("demons"),
@@ -169,11 +173,11 @@ public class DataLoader implements ApplicationRunner {
             }
         }
         ArrayList<User> users = new ArrayList<>(Arrays.asList(
-                new User("admin", "Univac00Eniac_1", UserRole.ADMIN),
-                new User("qkql", "12_Passwsdfgdord", UserRole.USER),
-                new User("bob", "Passwdsdfgsdfg_00", UserRole.USER),
-                new User("michael", "000___11AAaaaaa", UserRole.USER),
-                new User("peter", "000___AAaaaaaBBB", UserRole.USER)
+                new User("admin", "000___11AAaaaaa", UserRole.ADMIN),
+                new User("qkql", "12_Passwsdfgdord", UserRole.USER)
+//                new User("bob", "Passwdsdfgsdfg_00", UserRole.USER)
+//                new User("michael", "000___11AAaaaaa", UserRole.USER),
+//                new User("peter", "000___AAaaaaaBBB", UserRole.USER)
         ));
         userRepository.saveAll(users);
         ArrayList<Review> reviews = new ArrayList<>();
@@ -182,8 +186,7 @@ public class DataLoader implements ApplicationRunner {
                 markRepository.save(new Mark(
                         (byte) (Math.abs(random.nextInt()) % 100), game, user)
                 );
-                Review review = new Review("Test review for " + game.getName() + " by " +
-                        user.getName(), game, user);
+                Review review = new Review(randomTextGenerator.getReviewText(), game, user);
                 reviews.add(review);
                 reviewRepository.save(review);
             }
@@ -191,27 +194,9 @@ public class DataLoader implements ApplicationRunner {
         for (Review review : reviews) {
             addComments(review, users, null, 2);
         }
-
-        System.out.println("Initialization completed");
-//        ArrayList<Comment> comments = new ArrayList<>(Arrays.asList(
-//                new Comment("First comment by admin", users.get(0), reviews.get(0), null)
-//        ));
-//        comments.add(new Comment("Second comment qkql", users.get(1), reviews.get(0), comments.get(0)));
-//        comments.add(new Comment("Third comment by bob", users.get(2), reviews.get(0), comments.get(1)));
-//        comments.add(new Comment("Fourth comment by bob", users.get(2), reviews.get(0), comments.get(0)));
-//        comments.add(new Comment("Fifth comment by admin", users.get(0), reviews.get(0), null));
-//        comments.add(new Comment("Sixth comment by qkql", users.get(1), reviews.get(0), comments.get(2)));
-//        comments.add(new Comment("Seventh comment by qkql", users.get(1), reviews.get(0), comments.get(5)));
-//        comments.add(new Comment("Eighth comment by qkql", users.get(1), reviews.get(0), comments.get(6)));
-//        commentRepository.saveAll(comments);
-//
-//        ArrayList<Vote> votes = new ArrayList<>(Arrays.asList(
-//                new Vote(true, users.get(0), reviews.get(0)),
-//                new Vote(false, users.get(0), reviews.get(1)),
-//                new Vote(false, users.get(0), comments.get(0)),
-//                new Vote(true, users.get(0), comments.get(1)),
-//                new Vote(false, users.get(0), comments.get(2))
-//        ));
-//        voteRepository.saveAll(votes);
+        long endTime = System.nanoTime();
+        long elapsedTime = endTime - startingTime;
+        System.out.println("Initialization completed. Elapsed time : " + TimeUnit.SECONDS.convert(elapsedTime,
+                TimeUnit.NANOSECONDS) + " s");
     }
 }
