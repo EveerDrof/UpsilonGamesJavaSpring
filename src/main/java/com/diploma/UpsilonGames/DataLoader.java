@@ -28,9 +28,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -158,7 +156,13 @@ public class DataLoader implements ApplicationRunner {
         File rootDataDir = new File(startupDataLocation + "/pictures/Site");
         File configFile = new File(startupDataLocation + "/config.json");
         if (configFile.exists()) {
-            String configContent = new String(Files.readAllBytes(configFile.toPath()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(configFile), "UTF-8"));
+            String configContent = "";
+            for (String line : br.lines().toList()) {
+                configContent += line;
+            }
+            br.close();
             JSONObject json = new JSONObject(configContent);
             JSONArray filmsJsonObjects = json.getJSONArray("filmsList");
             Tag movieTag = new Tag("movie");
