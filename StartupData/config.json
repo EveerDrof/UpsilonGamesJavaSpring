@@ -1,16 +1,9 @@
 {
   "filmsList": [
     {
-      "id": "tt1877830",
-      "tag": "Мелодрамы"
-    },
-    {
       "id": "tt0103064",
-      "tag": "Детектив"
-    },
-    {
-      "id": "tt0208092",
-      "tag": "Комедия"
+      "tag": "Детектив",
+      "posterUrl": "https://www.pngplay.com/wp-content/uploads/7/Nature-Leaves-Transparent-File.png"
     }
   ]
 }

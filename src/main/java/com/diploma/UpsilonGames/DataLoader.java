@@ -101,6 +101,15 @@ public class DataLoader implements ApplicationRunner {
         return picture;
     }
 
+    private Picture getPictureFromUrl(String url, Game game) throws IOException {
+        Request pictureObjectsRequest = new Request.Builder().url(
+                url).build();
+        Response pictureObjectsResponse = client.newCall(pictureObjectsRequest).execute();
+        Picture picture = new Picture(blobHelper.createBlob(pictureObjectsResponse.body().bytes()), game);
+        pictureRepository.save(picture);
+        return picture;
+    }
+
     private void loadAndSaveScreenshots(String imdbId, Game game) throws IOException {
         Request posterObjectsRequest = new Request.Builder().url(
                 "https://imdb-api.com/en/API/Images/k_r9n5k2r9/" + imdbId + "/Short").build();
@@ -183,7 +192,7 @@ public class DataLoader implements ApplicationRunner {
                 }
                 Game game = new Game(name, Math.abs(random.nextInt()) % 500, description);
                 game = gameRepository.save(game);
-                Picture shortcut = getPoster(id, game);
+                Picture shortcut = getPictureFromUrl(jsonObject.getString("posterUrl"), game);
                 game.setShortcut(shortcut);
                 game.setTags(Arrays.asList(movieTag, movieTagsSet.stream().filter(tag -> tag.getName().equals(tagName))
                         .collect(Collectors.toList()).get(0)));
