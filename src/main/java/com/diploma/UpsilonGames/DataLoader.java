@@ -54,6 +54,7 @@ public class DataLoader implements ApplicationRunner {
     private RandomTextGenerator randomTextGenerator;
     private String startupDataLocation = "StartupData";
     private String filmDataFileName = "filmData.json";
+    private Tag movieTypeTag = new Tag("movie");
 
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
@@ -166,7 +167,7 @@ public class DataLoader implements ApplicationRunner {
         }
     }
 
-    private void loadMovieFromDrive(String id, File filmDir, Tag movieTag, String tagName,
+    private void loadMovieFromDrive(String id, File filmDir, Tag movieTag,
                                     ArrayList<Game> games)
             throws Exception {
         System.out.println("Loading : " + id + " from drive");
@@ -179,15 +180,14 @@ public class DataLoader implements ApplicationRunner {
         game = gameRepository.save(game);
         Picture shortcut = loadPicture(filmDir.getAbsolutePath() + "/poster.jpg", game);
         pictureRepository.save(shortcut);
+        game.setTags(Arrays.asList(movieTypeTag, movieTag));
         game.setShortcut(shortcut);
-        game.setTags(Arrays.asList(movieTag, tagRepository.findByName(tagName)));
         games.add(game);
         gameRepository.save(game);
         loadAndSaveScreenshotsFromDrive(id, game, filmDir);
     }
 
-    private void loadMovieFromNetworkAndSave(String id, String tagName, String posterUrl, Tag movieTag,
-                                             Set<String> movieTagsSet, ArrayList<Game> games, File filmDir)
+    private void loadMovieFromNetworkAndSave(String id, String posterUrl, Tag movieTag, ArrayList<Game> games, File filmDir)
             throws Exception {
         System.out.println("Loading : " + id + " from network");
         Request wikiRequest = new Request.Builder().url("https://imdb-api.com/ru/API/Wikipedia/k_r9n5k2r9/"
@@ -202,21 +202,17 @@ public class DataLoader implements ApplicationRunner {
         PrintWriter out = new PrintWriter(filmDir.getAbsolutePath() + "/" + filmDataFileName);
         out.write(wholeFilmDataKJSONObject.toString());
         out.close();
-        if (!movieTagsSet.contains(tagName)) {
-            movieTagsSet.add(tagName);
-            tagRepository.save(new Tag(tagName));
-        }
         Game game = new Game(name, Math.abs(random.nextInt()) % 500, description);
         game = gameRepository.save(game);
         Picture shortcut = loadAndSavePicture(posterUrl, game, filmDir.getAbsolutePath() + "/poster.jpg");
         game.setShortcut(shortcut);
-        game.setTags(Arrays.asList(movieTag, tagRepository.findByName(tagName)));
+        game.setTags(Arrays.asList(movieTypeTag, movieTag));
         games.add(game);
         gameRepository.save(game);
         loadAndSaveScreenshots(id, game, filmDir);
     }
 
-    private void loadMovies(ArrayList<Game> games) throws Exception {
+    private void loadMovies(ArrayList<Game> games, ArrayList<Tag> gameTags) throws Exception {
         File downloadedFilmsDataDir = new File(startupDataLocation + "/../../downloadedFilmsData");
         if (!downloadedFilmsDataDir.exists()) {
             if (!downloadedFilmsDataDir.mkdir()) {
@@ -235,21 +231,23 @@ public class DataLoader implements ApplicationRunner {
             br.close();
             JSONObject json = new JSONObject(configContent);
             JSONArray filmsJsonObjects = json.getJSONArray("filmsList");
-            Tag movieTag = new Tag("movie");
-            tagRepository.save(movieTag);
-            Set<String> movieTagsSet = new HashSet<>(Set.of(movieTag.getName()));
+            HashSet<String> tagSet = new HashSet<>();
             for (Object obj : filmsJsonObjects) {
                 JSONObject jsonObject = (JSONObject) obj;
                 String id = jsonObject.getString("id");
                 String tagName = jsonObject.getString("tag");
+                if (!tagSet.contains(tagName)) {
+                    tagSet.add(tagName);
+                    tagRepository.save(new Tag(tagName));
+                }
                 String posterURL = jsonObject.getString("posterUrl");
                 File filmDir = new File(downloadedFilmsDataDir.getAbsolutePath() + "/" + id);
                 if (filmDir.exists()) {
-                    loadMovieFromDrive(id, filmDir, movieTag, tagName, games);
+                    loadMovieFromDrive(id, filmDir, tagRepository.findByName(tagName), games);
                     continue;
                 }
                 filmDir.mkdir();
-                loadMovieFromNetworkAndSave(id, tagName, posterURL, movieTag, movieTagsSet, games, filmDir);
+                loadMovieFromNetworkAndSave(id, posterURL, tagRepository.findByName(tagName), games, filmDir);
             }
         }
     }
@@ -365,8 +363,9 @@ public class DataLoader implements ApplicationRunner {
         long startingTime = System.nanoTime();
         ArrayList<Tag> gameTags = loadTags();
         tagRepository.saveAll(gameTags);
+        tagRepository.save(movieTypeTag);
         ArrayList<Game> games = new ArrayList<>();
-        loadMovies(games);
+        loadMovies(games, gameTags);
         loadGames(games, gameTags);
         ArrayList<User> users = new ArrayList<>(Arrays.asList(
                 new User("admin", "000___11AAaaaaa", UserRole.ADMIN),
