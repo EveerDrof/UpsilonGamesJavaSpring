@@ -29,14 +29,17 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Blob;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Component
 public class DataLoader implements ApplicationRunner {
 
+    Random random = new Random();
     static int commentsNumber = 0;
     private UserRepository userRepository;
     private GameRepository gameRepository;
@@ -49,6 +52,8 @@ public class DataLoader implements ApplicationRunner {
     private BlobHelper blobHelper;
     private OkHttpClient client;
     private RandomTextGenerator randomTextGenerator;
+    private String startupDataLocation = "StartupData";
+    private String filmDataFileName = "filmData.json";
 
     @Autowired
     public DataLoader(UserRepository userRepository, GameRepository gameRepository, MarkRepository markRepository,
@@ -110,20 +115,41 @@ public class DataLoader implements ApplicationRunner {
         return picture;
     }
 
-    private void loadAndSaveScreenshots(String imdbId, Game game) throws IOException {
+    private Picture loadAndSavePicture(String imageUrl, Game game, String outputFileName) throws Exception {
+        Request posterImageRequest = new Request.Builder().url(imageUrl).build();
+        Response posterImageResponse = client.newCall(posterImageRequest).execute();
+        Blob blob = blobHelper.createBlob(posterImageResponse.body().bytes());
+        InputStream in = blob.getBinaryStream();
+        OutputStream out = new FileOutputStream(outputFileName);
+        byte[] buff = new byte[4096];  // how much of the blob to read/write at a time
+        int len = 0;
+        while ((len = in.read(buff)) != -1) {
+            out.write(buff, 0, len);
+        }
+        out.close();
+        Picture picture = new Picture(blob, game);
+        try {
+            pictureRepository.save(picture);
+        } catch (Exception ex) {
+            System.out.println(imageUrl);
+//            System.out.println(ex.getMessage());
+//            ex.printStackTrace();
+        }
+        return picture;
+    }
+
+    private void loadAndSaveScreenshots(String imdbId, Game game, File filmDir) throws Exception {
         Request posterObjectsRequest = new Request.Builder().url(
                 "https://imdb-api.com/en/API/Images/k_r9n5k2r9/" + imdbId + "/Short").build();
         Response posterObjectsResponse = client.newCall(posterObjectsRequest).execute();
         JSONObject posterObjectsJSONObject = new JSONObject(posterObjectsResponse.body().string());
         JSONArray jsonArray = posterObjectsJSONObject.getJSONArray("items");
         int currentScreenshotsLoaded = 0;
-        int maxScreenshots = 4;
+        int maxScreenshots = 2;
         for (Object pictureJson : jsonArray) {
             JSONObject jsonObject = (JSONObject) pictureJson;
-            Request posterImageRequest = new Request.Builder().url(jsonObject.getString("image")).build();
-            Response posterImageResponse = client.newCall(posterImageRequest).execute();
-            Picture picture = new Picture(blobHelper.createBlob(posterImageResponse.body().bytes()), game);
-            pictureRepository.save(picture);
+            loadAndSavePicture(jsonObject.getString("image"), game,
+                    filmDir.toPath() + "/" + currentScreenshotsLoaded + ".jpg");
             currentScreenshotsLoaded++;
             if (maxScreenshots == currentScreenshotsLoaded) {
                 return;
@@ -131,38 +157,73 @@ public class DataLoader implements ApplicationRunner {
         }
     }
 
-    public void run(ApplicationArguments args) throws Exception {
-        long startingTime = System.nanoTime();
-        ArrayList<Tag> gameTags = new ArrayList<>(Arrays.asList(
-                new Tag("game"),
-                new Tag("shooter"),
-                new Tag("demons"),
-                new Tag("strategy"),
-                new Tag("rpg"),
-                new Tag("chernobyl"),
-                new Tag("war"),
-                new Tag("aliens"),
-                new Tag("horror"),
-                new Tag("multiplayer"),
-                new Tag("fantasy"),
-                new Tag("action-rpg"),
-                new Tag("stealth"),
-                new Tag("4x"),
-                new Tag("steampunk"),
-                new Tag("assassins"),
-                new Tag("metroid"),
-                new Tag("crime"),
-                new Tag("2d"),
-                new Tag("monsters"),
-                new Tag("sci-fi"),
-                new Tag("anomalies"),
-                new Tag("space")
-        ));
-        tagRepository.saveAll(gameTags);
-        Random random = new Random();
-        ArrayList<Game> games = new ArrayList<>();
-        String startupDataLocation = "StartupData";
-        File rootDataDir = new File(startupDataLocation + "/pictures/Site");
+    private void loadAndSaveScreenshotsFromDrive(String id, Game game, File filmDir) throws Exception {
+        for (File file : filmDir.listFiles()) {
+            if (file.getName().contains(".jpg") && !file.getName().equals("poster.jpg")) {
+                Picture picture = loadPicture(file.getAbsolutePath(), game);
+                pictureRepository.save(picture);
+            }
+        }
+    }
+
+    private void loadMovieFromDrive(String id, File filmDir, Tag movieTag, String tagName,
+                                    ArrayList<Game> games)
+            throws Exception {
+        System.out.println("Loading : " + id + " from drive");
+        String jsonFilmFileString = Files.readString(Path.of(filmDir.getAbsolutePath() + "/" + filmDataFileName),
+                StandardCharsets.UTF_8);
+        JSONObject jsonObject = new JSONObject(jsonFilmFileString);
+        String name = jsonObject.getString("name");
+        String description = jsonObject.getString("description");
+        Game game = new Game(name, Math.abs(random.nextInt()) % 500, description);
+        game = gameRepository.save(game);
+        Picture shortcut = loadPicture(filmDir.getAbsolutePath() + "/poster.jpg", game);
+        pictureRepository.save(shortcut);
+        game.setShortcut(shortcut);
+        game.setTags(Arrays.asList(movieTag, tagRepository.findByName(tagName)));
+        games.add(game);
+        gameRepository.save(game);
+        loadAndSaveScreenshotsFromDrive(id, game, filmDir);
+    }
+
+    private void loadMovieFromNetworkAndSave(String id, String tagName, String posterUrl, Tag movieTag,
+                                             Set<String> movieTagsSet, ArrayList<Game> games, File filmDir)
+            throws Exception {
+        System.out.println("Loading : " + id + " from network");
+        Request wikiRequest = new Request.Builder().url("https://imdb-api.com/ru/API/Wikipedia/k_r9n5k2r9/"
+                + id).build();
+        Response wikiResponse = client.newCall(wikiRequest).execute();
+        JSONObject wikiJSONObject = new JSONObject(wikiResponse.body().string());
+        String description = wikiJSONObject.getJSONObject("plotShort").getString("plainText");
+        String name = wikiJSONObject.getString("title");
+        JSONObject wholeFilmDataKJSONObject = new JSONObject();
+        wholeFilmDataKJSONObject.put("name", name);
+        wholeFilmDataKJSONObject.put("description", description);
+        PrintWriter out = new PrintWriter(filmDir.getAbsolutePath() + "/" + filmDataFileName);
+        out.write(wholeFilmDataKJSONObject.toString());
+        out.close();
+        if (!movieTagsSet.contains(tagName)) {
+            movieTagsSet.add(tagName);
+            tagRepository.save(new Tag(tagName));
+        }
+        Game game = new Game(name, Math.abs(random.nextInt()) % 500, description);
+        game = gameRepository.save(game);
+        Picture shortcut = loadAndSavePicture(posterUrl, game, filmDir.getAbsolutePath() + "/poster.jpg");
+        game.setShortcut(shortcut);
+        game.setTags(Arrays.asList(movieTag, tagRepository.findByName(tagName)));
+        games.add(game);
+        gameRepository.save(game);
+        loadAndSaveScreenshots(id, game, filmDir);
+    }
+
+    private void loadMovies(ArrayList<Game> games) throws Exception {
+        File downloadedFilmsDataDir = new File(startupDataLocation + "/../../downloadedFilmsData");
+        if (!downloadedFilmsDataDir.exists()) {
+            if (!downloadedFilmsDataDir.mkdir()) {
+                throw new Exception("Could not create downloadedFilmsData dir");
+            }
+        }
+
         File configFile = new File(startupDataLocation + "/config.json");
         if (configFile.exists()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -176,33 +237,27 @@ public class DataLoader implements ApplicationRunner {
             JSONArray filmsJsonObjects = json.getJSONArray("filmsList");
             Tag movieTag = new Tag("movie");
             tagRepository.save(movieTag);
-            Set<Tag> movieTagsSet = new HashSet<>(Set.of(movieTag));
+            Set<String> movieTagsSet = new HashSet<>(Set.of(movieTag.getName()));
             for (Object obj : filmsJsonObjects) {
                 JSONObject jsonObject = (JSONObject) obj;
                 String id = jsonObject.getString("id");
-                Request wikiRequest = new Request.Builder().url("https://imdb-api.com/ru/API/Wikipedia/k_r9n5k2r9/"
-                        + id).build();
-                Response wikiResponse = client.newCall(wikiRequest).execute();
-                JSONObject wikiJSONObject = new JSONObject(wikiResponse.body().string());
-                String description = wikiJSONObject.getJSONObject("plotShort").getString("plainText");
-                String name = wikiJSONObject.getString("title");
                 String tagName = jsonObject.getString("tag");
-                if (!movieTagsSet.contains(tagName)) {
-                    movieTagsSet.add(new Tag(tagName));
+                String posterURL = jsonObject.getString("posterUrl");
+                File filmDir = new File(downloadedFilmsDataDir.getAbsolutePath() + "/" + id);
+                if (filmDir.exists()) {
+                    loadMovieFromDrive(id, filmDir, movieTag, tagName, games);
+                    continue;
                 }
-                Game game = new Game(name, Math.abs(random.nextInt()) % 500, description);
-                game = gameRepository.save(game);
-                Picture shortcut = getPictureFromUrl(jsonObject.getString("posterUrl"), game);
-                game.setShortcut(shortcut);
-                game.setTags(Arrays.asList(movieTag, movieTagsSet.stream().filter(tag -> tag.getName().equals(tagName))
-                        .collect(Collectors.toList()).get(0)));
-                games.add(game);
-                gameRepository.save(game);
-                loadAndSaveScreenshots(id, game);
+                filmDir.mkdir();
+                loadMovieFromNetworkAndSave(id, tagName, posterURL, movieTag, movieTagsSet, games, filmDir);
             }
         }
+    }
+
+    private void loadGames(ArrayList<Game> games, ArrayList<Tag> gameTags) throws Exception {
+        File gameDataDir = new File(startupDataLocation + "/pictures/Site");
         String pictureType = ".jpg";
-        for (File dir : rootDataDir.listFiles()) {
+        for (File dir : gameDataDir.listFiles()) {
             String gameName = dir.getName();
             String description = "";
             int steamId = 0;
@@ -260,14 +315,38 @@ public class DataLoader implements ApplicationRunner {
 
             }
         }
-        ArrayList<User> users = new ArrayList<>(Arrays.asList(
-                new User("admin", "000___11AAaaaaa", UserRole.ADMIN),
-                new User("qkql", "12_Passwsdfgdord", UserRole.USER)
-//                new User("bob", "Passwdsdfgsdfg_00", UserRole.USER)
-//                new User("michael", "000___11AAaaaaa", UserRole.USER),
-//                new User("peter", "000___AAaaaaaBBB", UserRole.USER)
+    }
+
+    private ArrayList<Tag> loadTags() {
+        ArrayList<Tag> tags = new ArrayList<>(Arrays.asList(
+                new Tag("game"),
+                new Tag("shooter"),
+                new Tag("demons"),
+                new Tag("strategy"),
+                new Tag("rpg"),
+                new Tag("chernobyl"),
+                new Tag("war"),
+                new Tag("aliens"),
+                new Tag("horror"),
+                new Tag("multiplayer"),
+                new Tag("fantasy"),
+                new Tag("action-rpg"),
+                new Tag("stealth"),
+                new Tag("4x"),
+                new Tag("steampunk"),
+                new Tag("assassins"),
+                new Tag("metroid"),
+                new Tag("crime"),
+                new Tag("2d"),
+                new Tag("monsters"),
+                new Tag("sci-fi"),
+                new Tag("anomalies"),
+                new Tag("space")
         ));
-        userRepository.saveAll(users);
+        return tags;
+    }
+
+    private ArrayList<Review> addReviews(ArrayList<Game> games, ArrayList<User> users) {
         ArrayList<Review> reviews = new ArrayList<>();
         for (Game game : games) {
             for (User user : users) {
@@ -279,6 +358,25 @@ public class DataLoader implements ApplicationRunner {
                 reviewRepository.save(review);
             }
         }
+        return reviews;
+    }
+
+    public void run(ApplicationArguments args) throws Exception {
+        long startingTime = System.nanoTime();
+        ArrayList<Tag> gameTags = loadTags();
+        tagRepository.saveAll(gameTags);
+        ArrayList<Game> games = new ArrayList<>();
+        loadMovies(games);
+        loadGames(games, gameTags);
+        ArrayList<User> users = new ArrayList<>(Arrays.asList(
+                new User("admin", "000___11AAaaaaa", UserRole.ADMIN),
+                new User("qkql", "12_Passwsdfgdord", UserRole.USER)
+//                new User("bob", "Passwdsdfgsdfg_00", UserRole.USER)
+//                new User("michael", "000___11AAaaaaa", UserRole.USER),
+//                new User("peter", "000___AAaaaaaBBB", UserRole.USER)
+        ));
+        userRepository.saveAll(users);
+        ArrayList<Review> reviews = addReviews(games, users);
         for (Review review : reviews) {
             addComments(review, users, null, 2);
         }

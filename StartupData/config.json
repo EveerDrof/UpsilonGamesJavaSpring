@@ -1,9 +1,104 @@
 {
   "filmsList": [
     {
-      "id": "tt0103064",
+      "id": "tt0469494",
+      "tag": "Драма",
+      "posterUrl": "https://upload.wikimedia.org/wikipedia/ru/6/6a/There-Will-Be-Blood-674645.jpg"
+    },
+    {
+      "id": "tt0364569",
+      "tag": "Драма",
+      "posterUrl": "https://upload.wikimedia.org/wikipedia/ru/thumb/8/8c/%D0%9F%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0_%C2%AB%D0%9E%D0%BB%D0%B4%D0%B1%D0%BE%D0%B9%C2%BB_%282003%29.jpg/800px-%D0%9F%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0_%C2%AB%D0%9E%D0%BB%D0%B4%D0%B1%D0%BE%D0%B9%C2%BB_%282003%29.jpg"
+    },
+    {
+      "id": "tt0272338",
+      "tag": "Драма",
+      "posterUrl": "https://b1.filmpro.ru/c/224924.jpg"
+    },
+    {
+      "id": "tt0118749",
+      "tag": "Драма",
+      "posterUrl": "https://upload.wikimedia.org/wikipedia/ru/a/ab/Boogie_nights.jpg"
+    },
+    {
+      "id": "tt1205489",
+      "tag": "Драма",
+      "posterUrl": "https://avatars.mds.yandex.net/get-kinopoisk-image/1773646/2b4131b4-004c-4b1f-9d1a-f9e44c1af062/orig"
+    },
+    {
+      "id": "tt2911666",
+      "tag": "Боевик",
+      "posterUrl": "https://upload.wikimedia.org/wikipedia/ru/e/e5/%D0%94%D0%B6%D0%BE%D0%BD_%D0%A3%D0%B8%D0%BA.jpg"
+    },
+    {
+      "id": "tt7888964",
+      "tag": "Боевик",
+      "posterUrl": "https://upload.wikimedia.org/wikipedia/ru/3/3a/%D0%9F%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0_%C2%AB%D0%9D%D0%B8%D0%BA%D1%82%D0%BE%C2%BB.jpg"
+    },
+    {
+      "id": "tt0095016",
+      "tag": "Боевик",
+      "posterUrl": "https://b1.filmpro.ru/c/6837.jpg"
+    },
+    {
+      "id": "tt0401792",
+      "tag": "Боевик",
+      "posterUrl": "https://b1.filmpro.ru/c/34732.jpg"
+    },
+    {
+      "id": "tt3890160",
+      "tag": "Боевик",
+      "posterUrl": "https://upload.wikimedia.org/wikipedia/ru/c/c2/%D0%9C%D0%B0%D0%BB%D1%8B%D1%88_%D0%BD%D0%B0_%D0%B4%D1%80%D0%B0%D0%B9%D0%B2%D0%B5.jpg"
+    },
+    {
+      "id": "tt0213338",
+      "tag": "Аниме",
+      "posterUrl": "https://i.pinimg.com/550x/41/6d/aa/416daa2c86aa835cc72bbaa3c0227556.jpg"
+    },
+    {
+      "id": "tt0423731",
+      "tag": "Аниме",
+      "posterUrl": "https://b1.filmpro.ru/c/521913.jpg"
+    },
+    {
+      "id": "tt8946378",
       "tag": "Детектив",
-      "posterUrl": "https://www.pngplay.com/wp-content/uploads/7/Nature-Leaves-Transparent-File.png"
+      "posterUrl": "https://b1.filmpro.ru/c/809420.jpg"
+    },
+    {
+      "id": "tt2356777",
+      "tag": "Детектив",
+      "posterUrl": "https://images.kinorium.com/movie/poster/656648/h280_43038553.jpg"
+    },
+    {
+      "id": "tt0167404",
+      "tag": "Детектив",
+      "posterUrl": "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/a99e9d0e-32e1-4d13-961e-e813b1c5c2dc/orig"
+    },
+    {
+      "id": "tt0098936",
+      "tag": "Детектив",
+      "posterUrl": "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/90/3744-1000x830.jpg"
+    },
+    {
+      "id": "tt3315342",
+      "tag": "Супергероика",
+      "posterUrl": "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/99/1510-1000x830.jpg"
+    },
+    {
+      "id": "tt2015381",
+      "tag": "Супергероика",
+      "posterUrl": "https://fs.kinomania.ru/file/film_poster/8/37/837bc87e8ef7988f4e15324e60cfaa4a.jpeg"
+    },
+    {
+      "id": "tt1877830",
+      "tag": "Супергероика",
+      "posterUrl": "https://media.kg-portal.ru/movies/t/thebatman/posters/thebatman_11.jpg"
+    },
+    {
+      "id": "tt0360486",
+      "tag": "Супергероика",
+      "posterUrl": "https://www.kino-teatr.ru/movie/poster/25587/38548.jpg"
     }
   ]
 }
